@@ -1,1 +1,5 @@
-package _go
+package main
+
+func main()  {
+	
+}
