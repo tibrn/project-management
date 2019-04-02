@@ -1,0 +1,16 @@
+create_table("users") {
+    t.Column("id", "integer", {primary: true})
+    t.Column("name", "string", {})
+    t.Column("password", "string", {})
+    t.Column("email", "string", {})
+    t.Column("remember_token", "string", {})
+    t.Column("slug", "string", {})
+    t.Column("type", "integer", {"default": 0})
+    t.Column("joined_at", "timestamp", {})
+}
+
+create_table("user_settings") {
+    t.Column("id", "integer", {})
+    t.ForeignKey("user_id", {"users": ["id"]}, {"on_delete": "cascade"})
+    t.Column("github_handle", "string", {"size": 50})
+}
