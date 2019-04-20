@@ -39,9 +39,8 @@ func App() *buffalo.App {
 			Env:         ENV,
 			SessionName: "_baron_session",
 		})
-
 		// Automatically redirect to SSL
-		app.Use(forceSSL())
+		// app.Use(forceSSL())
 
 		// Log request parameters (filters apply).
 		app.Use(paramlogger.ParameterLogger)
@@ -60,7 +59,15 @@ func App() *buffalo.App {
 
 		app.GET("/", HomeHandler)
 
-		app.ServeFiles("/", assetsBox) // serve files from the public directory
+		app.GET("/about", AboutHandler)
+
+		app.GET("/projects", ProjectsHandler)
+
+		api := app.Group("api")
+
+		api.Resource("user", UsersResource{})
+
+		app.ServeFiles("/", AssetsBox) // serve files from the public directory
 	}
 
 	return app

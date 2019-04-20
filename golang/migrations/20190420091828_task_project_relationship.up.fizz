@@ -1,0 +1,6 @@
+create_table("projects_tasks") {
+    t.Column("project_id","string",{})
+	t.Column("task_id", "integer",{})
+	t.ForeignKey("task_id", {"tasks": ["id"]}, {"on_delete": "cascade"})
+    t.ForeignKey("project_id", {"projects": ["id"]}, {"on_delete": "cascade"})
+}

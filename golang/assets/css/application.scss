@@ -1,4 +1,9 @@
-@import "~bootstrap/scss/bootstrap.scss";
-@import "~font-awesome/css/font-awesome.css";
 
-@import "buffalo"
+// Variables
+@import "inc/_variables";
+@import "inc/_mixins";
+@import "inc/_bs4-custom";
+@import "inc/_bs4-mixins";
+
+
+@import "parts/nav.scss";

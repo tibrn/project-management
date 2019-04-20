@@ -1,0 +1,7 @@
+create_table("users_languages") {
+	t.Column("user_id", "integer",{})
+    t.Column("language_id","string",{})
+    t.Column("proficiency","float",{})
+	t.ForeignKey("user_id", {"users": ["id"]}, {"on_delete": "cascade"})
+    t.ForeignKey("language_id", {"languages": ["id"]}, {"on_delete": "cascade"})
+}

@@ -1,8 +1,8 @@
 development:
   dialect: postgres
-  database: golang_development
-  user: postgres
-  password: postgres
+  database: website
+  user: tibi
+  password: PSBBedut5QwrZCWU
   host: 127.0.0.1
   pool: 5
 

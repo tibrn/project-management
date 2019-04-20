@@ -1,9 +1,9 @@
 package main
 
 import (
-  "log"
+	"log"
 
-  "github.com/myWebsite/golang/actions"
+	"github.com/myWebsite/golang/actions"
 )
 
 // main is the starting point for your Buffalo application.
@@ -13,10 +13,10 @@ import (
 // call `app.Serve()`, unless you don't want to start your
 // application that is. :)
 func main() {
-  app := actions.App()
-  if err := app.Serve(); err != nil {
-    log.Fatal(err)
-  }
+	app := actions.App()
+	if err := app.Serve(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 /*

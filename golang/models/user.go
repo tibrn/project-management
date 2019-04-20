@@ -1,0 +1,61 @@
+package models
+
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+)
+
+type User struct {
+	ID            uuid.UUID `json:"id" db:"id"`
+	Email         string    `json:"email" db:"email"`
+	Password      string    `json:"password" db:"password"`
+	RememberToken string    `json:"remember_token" db:"remember_token"`
+	Slug          string    `json:"slug" db:"slug"`
+	Type          int8      `json:"type" db:"type"`
+	JoinedAt      time.Time `json:"joined_at" db:"joined_at"`
+	CreatedAt     time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
+	//Relationships
+	Settings  UserSettings `has_one:"user_settings"`
+	Tasks     Tasks        `many_to_many:"users_tasks"`
+	Projects  Projects     `many_to_many:"users_projects"`
+	Languages Languages    `many_to_many:"users_languages"`
+	Comments  Comments     `has_many:"comments" order_by:"created_at desc"`
+}
+
+// String is not required by pop and may be deleted
+func (u User) String() string {
+	ju, _ := json.Marshal(u)
+	return string(ju)
+}
+
+// Users is not required by pop and may be deleted
+type Users []User
+
+// String is not required by pop and may be deleted
+func (u Users) String() string {
+	ju, _ := json.Marshal(u)
+	return string(ju)
+}
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// This method is not required and may be deleted.
+func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
+}
+
+// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
+// This method is not required and may be deleted.
+func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
+}
+
+// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
+// This method is not required and may be deleted.
+func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
+}
