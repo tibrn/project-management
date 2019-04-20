@@ -1,6 +1,6 @@
 create_table("projects_languages") {
-	t.Column("project_id", "string",{})
-    t.Column("language_id","string",{})
+	t.Column("project_id", "uuid",{})
+    t.Column("language_id","integer",{})
     t.Column("usage","float",{})
 	t.ForeignKey("project_id", {"projects": ["id"]}, {"on_delete": "cascade"})
     t.ForeignKey("language_id", {"languages": ["id"]}, {"on_delete": "cascade"})
