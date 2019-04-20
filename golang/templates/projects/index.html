@@ -1,0 +1,29 @@
+<div class="page-header">
+  <h1>Projects</h1>
+</div>
+<ul class="list-unstyled list-inline">
+  <li><a href="<%= newProjectsPath() %>" class="btn btn-primary">Create New Project</a></li>
+</ul>
+
+<table class="table table-striped">
+  <thead>
+  <th>&nbsp;</th>
+  </thead>
+  <tbody>
+    <%= for (project) in projects { %>
+      <tr>
+      <td>
+          <div class="pull-right">
+            <a href="<%= projectPath({ project_id: project.ID }) %>" class="btn btn-info">View</a>
+            <a href="<%= editProjectPath({ project_id: project.ID }) %>" class="btn btn-warning">Edit</a>
+            <a href="<%= projectPath({ project_id: project.ID }) %>" data-method="DELETE" data-confirm="Are you sure?" class="btn btn-danger">Destroy</a>
+          </div>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
+
+<div class="text-center">
+  <%= paginator(pagination) %>
+</div>

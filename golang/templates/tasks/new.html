@@ -1,0 +1,8 @@
+<div class="page-header">
+  <h1>New Task</h1>
+</div>
+
+<%= form_for(task, {action: tasksPath(), method: "POST"}) { %>
+  <%= partial("tasks/form.html") %>
+  <a href="<%= tasksPath() %>" class="btn btn-warning" data-confirm="Are you sure?">Cancel</a>
+<% } %>

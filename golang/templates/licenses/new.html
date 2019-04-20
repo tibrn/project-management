@@ -1,0 +1,8 @@
+<div class="page-header">
+  <h1>New License</h1>
+</div>
+
+<%= form_for(license, {action: licensesPath(), method: "POST"}) { %>
+  <%= partial("licenses/form.html") %>
+  <a href="<%= licensesPath() %>" class="btn btn-warning" data-confirm="Are you sure?">Cancel</a>
+<% } %>

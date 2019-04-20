@@ -63,11 +63,22 @@ func App() *buffalo.App {
 
 		app.GET("/projects", ProjectsHandler)
 
+		//API
 		api := app.Group("api")
 
 		api.Resource("user", UsersResource{})
 
-		app.ServeFiles("/", AssetsBox) // serve files from the public directory
+		api.Resource("project", ProjectsResource{})
+
+		api.Resource("comment", ProjectsResource{})
+
+		api.Resource("task", TasksResource{})
+
+		api.Resource("license", LicensesResource{})
+
+		//END API
+
+		app.ServeFiles("/", assetsBox) // serve files from the public directory
 	}
 
 	return app

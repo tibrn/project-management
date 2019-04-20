@@ -1,0 +1,8 @@
+<div class="page-header">
+  <h1>New Comment</h1>
+</div>
+
+<%= form_for(comment, {action: commentsPath(), method: "POST"}) { %>
+  <%= partial("comments/form.html") %>
+  <a href="<%= commentsPath() %>" class="btn btn-warning" data-confirm="Are you sure?">Cancel</a>
+<% } %>
