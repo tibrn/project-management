@@ -1,0 +1,11 @@
+create_table("tasks") {
+	t.Column("id", "integer", {primary: true})
+	t.Column("task_id", "integer", {null:true})
+	t.Column("project_id","uuid",{})
+	t.Column("name", "string",{null:false})
+	t.Column("description", "string",{null:true})
+	t.Column("progress","numeric",{"scale": 6, "precision": 2,default:0 })
+	t.Column("closed","bool",{default:false})
+	t.ForeignKey("project_id",{"projects": ["id"]}, {"on_delete": "cascade"})
+	t.ForeignKey("task_id",{"tasks": ["id"]}, {"on_delete": "cascade"})
+}

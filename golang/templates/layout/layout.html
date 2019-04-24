@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Baron Tiberiu</title>
+    <%= stylesheetTag("application.css") %>
+    <%= stylesheetTag("vendors.css") %>
+    <meta name="csrf-param" content="authenticity_token" />
+    <meta name="csrf-token" content="<%= authenticity_token %>" />
+    <link rel="icon" href="<%= assetPath("images/favicon.ico") %>">
+  </head>
+  <body>
+
+    <%= partial("parts/nav.html") %>
+
+    <%= yield %>
+
+    <%= partial("parts/footer.html") %>
+
+    <%= javascriptTag("application.js") %>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+- id: "license.created.success"
+  translation: "License was successfully created."
+- id: "license.updated.success"
+  translation: "License was successfully updated."
+- id: "license.destroyed.success"
+  translation: "License was successfully destroyed."

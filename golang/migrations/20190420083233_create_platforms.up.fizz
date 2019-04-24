@@ -1,0 +1,7 @@
+create_table("platforms") {
+	t.Column("id", "integer", {primary: true})
+	t.Column("name", "string",{})
+	t.Column("home", "string",{})
+	t.Index("home", {"unique": true})
+	t.Index("name", {"unique": true})
+}
