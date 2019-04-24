@@ -1,14 +1,17 @@
 package actions
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/unrolled/secure"
+	"gopkg.in/boj/redistore.v1"
 
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
-	csrf "github.com/gobuffalo/mw-csrf"
 	i18n "github.com/gobuffalo/mw-i18n"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/myWebsite/golang/models"
@@ -35,9 +38,12 @@ var T *i18n.Translator
 // declared after it to never be called.
 func App() *buffalo.App {
 	if app == nil {
+		redisStoreDB, _ := strconv.Atoi(os.Getenv("REDIS_DB_SESSION"))
+		store, _ := redistore.NewRediStore(redisStoreDB, "tcp", os.Getenv("REDIS_SERVER")+":"+os.Getenv("REDIS_PORT"), os.Getenv("REDIS_PASSWORD"), []byte("_baron_session"))
 		app = buffalo.New(buffalo.Options{
-			Env:         ENV,
-			SessionName: "_baron_session",
+			Env:          ENV,
+			SessionName:  "_baron_session",
+			SessionStore: store,
 		})
 		// Automatically redirect to SSL
 		// app.Use(forceSSL())
@@ -47,7 +53,7 @@ func App() *buffalo.App {
 
 		// Protect against CSRF attacks. https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
 		// Remove to disable this.
-		app.Use(csrf.New)
+		// app.Use(csrf.New)
 
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.Connection)
@@ -57,12 +63,32 @@ func App() *buffalo.App {
 		// Setup and use translations:
 		app.Use(translations())
 
+		//app.Use(SetCurrentUser)
+		//app.Use(Authorize)
+
+		// app.GET("/signin", AuthNew)
+		app.POST("/login", AuthCreate)
+		app.DELETE("/logout", AuthDestroy)
+		//app.Middleware.Skip(Authorize, HomeHandler, ProjectsHandler, ProjectsHandler)
+		//app.GET("/signin", AuthNew)
+		//app.POST("/signin", AuthCreate)
+		//app.DELETE("/signout", AuthDestroy)
+
 		app.GET("/", HomeHandler)
 
 		app.GET("/about", AboutHandler)
 
 		app.GET("/projects", ProjectsHandler)
 
+		//PLATFORMS
+		platform := Platform{}
+
+		app.GET("/github/callback", platform.GithubCallback)
+
+		app.POST("/test/new", UsersResource{}.Create)
+		// app.GET("/github/callback/auth", platform.GithubCallbackAuth)
+
+		//END PLATFORMS
 		//API
 		api := app.Group("api")
 
@@ -75,6 +101,8 @@ func App() *buffalo.App {
 		api.Resource("task", TasksResource{})
 
 		api.Resource("license", LicensesResource{})
+
+		//api.Middleware.Skip(Authorize, UsersResource{}.Create)
 
 		//END API
 

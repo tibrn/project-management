@@ -3,5 +3,6 @@ create_table("languages") {
     t.Column("name", "string", {"null": false})
     t.Column("description", "string", {})
     t.Column("documentation", "string", {})
+    t.Column("color", "string", {})
     t.Index("name",{unqiue:true})
 }

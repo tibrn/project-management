@@ -41,6 +41,7 @@ CREATE TABLE public.comments (
     id integer NOT NULL,
     task_id integer NOT NULL,
     user_id integer NOT NULL,
+    content character varying(255) DEFAULT ''::character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -79,6 +80,7 @@ CREATE TABLE public.languages (
     name character varying(255),
     description character varying(255) NOT NULL,
     documentation character varying(255) NOT NULL,
+    color character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -117,6 +119,8 @@ CREATE TABLE public.licenses (
     project_id uuid NOT NULL,
     name character varying(255),
     description character varying(255),
+    nickname character varying(255) NOT NULL,
+    url character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -192,6 +196,8 @@ CREATE TABLE public.projects (
     platform_id integer NOT NULL,
     name character varying(255) NOT NULL,
     description character varying(255) NOT NULL,
+    closed boolean DEFAULT false NOT NULL,
+    url character varying(255) DEFAULT ''::character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -213,20 +219,6 @@ CREATE TABLE public.projects_languages (
 
 
 ALTER TABLE public.projects_languages OWNER TO tibi;
-
---
--- Name: projects_tasks; Type: TABLE; Schema: public; Owner: tibi
---
-
-CREATE TABLE public.projects_tasks (
-    project_id uuid NOT NULL,
-    task_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE public.projects_tasks OWNER TO tibi;
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: tibi
@@ -351,6 +343,24 @@ CREATE TABLE public.users_languages (
 
 
 ALTER TABLE public.users_languages OWNER TO tibi;
+
+--
+-- Name: users_platforms; Type: TABLE; Schema: public; Owner: tibi
+--
+
+CREATE TABLE public.users_platforms (
+    user_id integer NOT NULL,
+    platform_id integer NOT NULL,
+    token character varying(255),
+    token_type character varying(255),
+    "limit" integer NOT NULL,
+    reset_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.users_platforms OWNER TO tibi;
 
 --
 -- Name: users_projects; Type: TABLE; Schema: public; Owner: tibi
@@ -569,22 +579,6 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: projects_tasks projects_tasks_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
---
-
-ALTER TABLE ONLY public.projects_tasks
-    ADD CONSTRAINT projects_tasks_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
-
-
---
--- Name: projects_tasks projects_tasks_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
---
-
-ALTER TABLE ONLY public.projects_tasks
-    ADD CONSTRAINT projects_tasks_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.tasks(id) ON DELETE CASCADE;
-
-
---
 -- Name: tasks tasks_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
 --
 
@@ -622,6 +616,22 @@ ALTER TABLE ONLY public.users_languages
 
 ALTER TABLE ONLY public.users_languages
     ADD CONSTRAINT users_languages_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: users_platforms users_platforms_platform_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_platforms
+    ADD CONSTRAINT users_platforms_platform_id_fkey FOREIGN KEY (platform_id) REFERENCES public.platforms(id) ON DELETE CASCADE;
+
+
+--
+-- Name: users_platforms users_platforms_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_platforms
+    ADD CONSTRAINT users_platforms_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --

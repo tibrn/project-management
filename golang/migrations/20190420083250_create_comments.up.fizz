@@ -2,7 +2,7 @@ create_table("comments") {
 	t.Column("id", "integer", {primary: true})
 	t.Column("task_id", "integer", {})
 	t.Column("user_id", "integer", {})
-	t.Columns("content", "string", {default: ""})
+	t.Column("content", "string", {default: ""})
 	t.ForeignKey("task_id", {"tasks": ["id"]}, {"on_delete": "cascade"})
 	t.ForeignKey("user_id", {"users": ["id"]})
 }

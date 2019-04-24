@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/myWebsite/golang/models"
@@ -93,8 +95,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	// Validate the data from the html form
-	verrs, err := tx.ValidateAndCreate(user)
+	verrs, err := user.Create(tx)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -105,13 +106,16 @@ func (v UsersResource) Create(c buffalo.Context) error {
 
 		// Render again the new.html template that the user can
 		// correct the input.
-		return c.Render(422, r.Auto(c, user))
+		fmt.Println(verrs)
+		// return c.Render(422, r.Auto(c, user))
 	}
 
 	// If there are no errors set a success message
+	c.Session().Set("current_user", user)
+
 	c.Flash().Add("success", T.Translate(c, "user.created.success"))
 	// and redirect to the users index page
-	return c.Render(201, r.Auto(c, user))
+	return nil
 }
 
 // Edit renders a edit form for a User. This function is
@@ -199,4 +203,26 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 	c.Flash().Add("success", T.Translate(c, "user.destroyed.success"))
 	// Redirect to the users index page
 	return c.Render(200, r.Auto(c, user))
+}
+
+// SetCurrentUser attempts to find a user based on the current_user_id
+// in the session. If one is found it is set on the context.
+func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		if user := c.Session().Get("current_user"); user != nil {
+			c.Set("current_user", user)
+		}
+		return next(c)
+	}
+}
+
+// Authorize require a user be logged in before accessing a route
+func Authorize(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		if user := c.Session().Get("current_user"); user == nil {
+			c.Flash().Add("danger", "You must be authorized to see that page")
+			return c.Redirect(302, "/")
+		}
+		return next(c)
+	}
 }
