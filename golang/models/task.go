@@ -12,13 +12,14 @@ type Task struct {
 	ID          uint64    `json:"id" db:"id"`
 	TaskID      uint64    `json:"task_id" db:"task_id"`
 	ProjectID   uint64    `json:"project_id" db:"project_id"`
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	Progress    float32   `json:"progress" db:"progress"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	Name        string    `json:"name,omitempty" db:"name"`
+	Description string    `json:"description,omitempty" db:"description"`
+	Progress    float32   `json:"progress,omitempty" db:"progress"`
+	CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
-	Subtasks Tasks `has_many:"tasks" order_by:"created_at desc"`
+	Subtasks Tasks    `json:"subtask,omitempty" has_many:"tasks" order_by:"created_at desc" db:"-"`
+	Project  *Project `json:"project,omitempty" belongs_to:"projects" db:"-"`
 }
 
 // String is not required by pop and may be deleted

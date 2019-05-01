@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"strings"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/myWebsite/golang/models"
@@ -18,21 +20,20 @@ func ProjectsHandler(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	user := &models.User{}
-
+	projects := &models.Projects{}
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params()).Eager("Projects")
+	q := tx.PaginateFromParams(c.Params())
 
-	currentUser := c.Value("current_user").(*models.User)
-	// Retrieve all Projects from the DB
-	if err := q.Find(user, currentUser.ID); err != nil {
+	// authID := c.Value("current_user_id").(int64)
+
+	if err := q.All(projects); err != nil {
 		return errors.WithStack(err)
 	}
 
-	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
-	c.Set("projects", user.Projects)
+	c.Set("projects", projects)
+
 	return c.Render(200, r.HTML("projects/index.html"))
 }
 
@@ -40,4 +41,29 @@ func ProjectsHandler(c buffalo.Context) error {
 // a home page.
 func HomeHandler(c buffalo.Context) error {
 	return c.Render(200, r.HTML("home/index.html"))
+}
+
+// RedirectPlatformHandler is handler to projects page
+func RedirectPlatformHandler(c buffalo.Context) error {
+	return c.Render(200, r.HTML("platform/index.html"))
+}
+
+// VueHandler is a handler that server Vue Application
+func VueHandler(c buffalo.Context) error {
+
+	c.Set("locale", strings.Split(strings.Split(c.Request().Header.Get("Accept-Language"), ";")[0], ",")[0])
+	// Get the DB connection from the context
+	user, _ := c.Value("current_user").(*pop.Connection)
+	if user != nil {
+		// Get the DB connection from the context
+		tx, ok := c.Value("tx").(*pop.Connection)
+		if !ok {
+			return errors.WithStack(errors.New("no transaction found"))
+		}
+		tx.Load(user, "Settings")
+
+		c.Set("current_user", user)
+	}
+
+	return c.Render(200, r.HTML("vue/index.html", "layout/empty.html"))
 }

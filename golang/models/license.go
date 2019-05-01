@@ -11,12 +11,12 @@ import (
 type License struct {
 	ID          uint64    `json:"id" db:"id"`
 	ProjectID   string    `json:"project_id" db:"project_id"`
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	Name        string    `json:"name,omitempty" db:"name"`
+	Description string    `json:"description,omitempty" db:"description"`
+	CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
-	Project *Project `belongs_to:"project"`
+	Project *Project `belongs_to:"projects" db:"-"`
 }
 
 // String is not required by pop and may be deleted

@@ -5,5 +5,6 @@ create_table("projects") {
 	t.Column("description", "string",{})
 	t.Column("closed", "bool",{default:false})
 	t.Column("url", "string",{default:""})
+	t.Column("id_platform","integer",{null:true})
 	t.ForeignKey("platform_id", {"platforms": ["id"]}, {"on_delete": "cascade"})
 }

@@ -10,11 +10,11 @@ import (
 
 type Language struct {
 	ID            uint64    `json:"id" db:"id"`
-	Name          string    `json:"name" db:"name"`
-	Description   string    `json:"description" db:"description"`
-	Documentation string    `json:"documentation" db:"documentation"`
-	CreatedAt     time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
+	Name          string    `json:"name,omitempty" db:"name"`
+	Description   string    `json:"description,omitempty" db:"description"`
+	Documentation string    `json:"documentation,omitempty" db:"documentation"`
+	CreatedAt     time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at,omitempty" db:"updated_at"`
 }
 
 // String is not required by pop and may be deleted

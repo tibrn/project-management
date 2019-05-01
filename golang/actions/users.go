@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"fmt"
+	"net/http"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
@@ -72,50 +72,38 @@ func (v UsersResource) Show(c buffalo.Context) error {
 	return c.Render(200, r.Auto(c, user))
 }
 
-// New renders the form for creating a new User.
-// This function is mapped to the path GET /users/new
-func (v UsersResource) New(c buffalo.Context) error {
-	return c.Render(200, r.Auto(c, &models.User{}))
-}
-
 // Create adds a User to the DB. This function is mapped to the
 // path POST /users
 func (v UsersResource) Create(c buffalo.Context) error {
 	// Allocate an empty User
-	user := &models.User{}
-
+	user := &models.User{
+		Settings: &models.UserSetting{},
+	}
 	// Bind user to the html form elements
 	if err := c.Bind(user); err != nil {
-		return errors.WithStack(err)
+		return HTTP500(c)
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return HTTP500(c)
 	}
 
 	verrs, err := user.Create(tx)
+
 	if err != nil {
-		return errors.WithStack(err)
+		return HTTP500(c)
 	}
 
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the new.html template that the user can
-		// correct the input.
-		fmt.Println(verrs)
-		// return c.Render(422, r.Auto(c, user))
+		return HTTP403(c, "user.created.fail", verrs.Errors)
 	}
 
-	// If there are no errors set a success message
-	c.Session().Set("current_user", user)
+	// If there are no errors set session user id
+	c.Session().Set("current_user_id", user.ID)
 
-	c.Flash().Add("success", T.Translate(c, "user.created.success"))
-	// and redirect to the users index page
-	return nil
+	return c.Render(http.StatusOK, r.JSON(Success{Message: T.Translate(c, "user.created.success")}))
 }
 
 // Edit renders a edit form for a User. This function is
@@ -209,8 +197,14 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 // in the session. If one is found it is set on the context.
 func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		if user := c.Session().Get("current_user"); user != nil {
-			c.Set("current_user", user)
+		if uid := c.Session().Get("current_user_id"); uid != nil {
+			u := &models.User{}
+			tx := c.Value("tx").(*pop.Connection)
+			err := tx.Eager("Settings").Find(u, uid)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			c.Set("current_user", u)
 		}
 		return next(c)
 	}
@@ -219,7 +213,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 // Authorize require a user be logged in before accessing a route
 func Authorize(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		if user := c.Session().Get("current_user"); user == nil {
+		if uid := c.Session().Get("current_user_id"); uid == nil {
 			c.Flash().Add("danger", "You must be authorized to see that page")
 			return c.Redirect(302, "/")
 		}

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -13,30 +14,44 @@ import (
 )
 
 type User struct {
-	ID                   uint64    `json:"id" db:"id"`
-	Email                string    `json:"email" db:"email"`
-	Password             string    `json:"password" db:"password"`
-	RememberToken        string    `json:"remember_token" db:"remember_token"`
-	Slug                 string    `json:"slug" db:"slug"`
-	Type                 int8      `json:"type" db:"type"`
-	JoinedAt             time.Time `json:"joined_at" db:"joined_at"`
-	CreatedAt            time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt            time.Time `json:"updated_at" db:"updated_at"`
-	PasswordPlain        string    `json:"-" db:"-" form:"password_plain"`
-	PasswordConfirmation string    `json:"-" db:"-" form:"password_confirmation"`
+	ID                   int64        `json:"id" db:"id"`
+	Name                 string       `json:"name,omitempty" form:"name" db:"name" `
+	Email                string       `json:"email,omitempty" form:"email" db:"email" `
+	Password             string       `json:"-" db:"password"`
+	RememberToken        nulls.String `json:"-" db:"remember_token"`
+	Slug                 nulls.String `json:"slug,omitempty" db:"slug"`
+	Type                 int8         `json:"type,omitempty" db:"type"`
+	JoinedAt             nulls.Time   `json:"joined_at,omitempty" db:"joined_at"`
+	CreatedAt            time.Time    `json:"-" db:"created_at"`
+	UpdatedAt            time.Time    `json:"-" db:"updated_at"`
+	PasswordPlain        string       `json:"password,omitempty" form:"password" db:"-" `
+	PasswordConfirmation string       `json:"password_confirmation,omitempty"  form:"password_confirmation" db:"-"`
 	//Relationships
-	Settings  UserSettings `has_one:"user_settings"`
-	Tasks     Tasks        `many_to_many:"users_tasks"`
-	Projects  Projects     `many_to_many:"users_projects"`
-	Languages Languages    `many_to_many:"users_languages"`
-	Comments  Comments     `has_many:"comments" order_by:"created_at desc"`
-	Accounts  Platforms    `many_to_many:"users_platforms"`
+	Settings  *UserSetting `json:"settings,omitempty" has_one:"user_settings" db:"-"`
+	Tasks     *Tasks       `json:"tasks,omitempty" many_to_many:"users_tasks" db:"-"`
+	Projects  *Projects    `json:"projects,omitempty" many_to_many:"users_projects" db:"-"`
+	Languages *Languages   `json:"languages,omitempty" many_to_many:"users_languages" db:"-"`
+	Comments  *Comments    `json:"comments,omitempty" has_many:"comments" db:"-" order_by:"created_at desc"`
+	Accounts  *Platforms   `json:"accounts,omitempty" many_to_many:"users_platforms" db:"-"`
 }
+
+//SafeUser is used to send user infromation
+//back to client without private information
+type SafeUser User
 
 // String is not required by pop and may be deleted
 func (u User) String() string {
+	u.PasswordConfirmation = ""
+	u.PasswordPlain = ""
 	ju, _ := json.Marshal(u)
 	return string(ju)
+}
+
+func (u User) MarshalJSON() ([]byte, error) {
+	user := SafeUser(u)
+	user.PasswordConfirmation = ""
+	user.PasswordPlain = ""
+	return json.Marshal((*SafeUser)(&user))
 }
 
 // Users is not required by pop and may be deleted
@@ -74,6 +89,7 @@ func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			},
 		},
 	), err
+
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
@@ -82,7 +98,7 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	var err error
 	return validate.Validate(
 		&validators.StringIsPresent{Field: u.PasswordPlain, Name: "PasswordPlain"},
-		&validators.StringIsPresent{Field: u.PasswordConfirmation, Name: "PasswordConfirmation"},
+		&validators.StringIsPresent{Field: u.Name, Name: "Name"},
 		&validators.StringsMatch{Name: "PasswordPlain", Field: u.PasswordPlain, Field2: u.PasswordConfirmation, Message: "Password does not match confirmation"},
 	), err
 }
@@ -102,5 +118,9 @@ func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 		return validate.NewErrors(), errors.WithStack(err)
 	}
 	u.Password = string(ph)
-	return tx.ValidateAndCreate(u)
+	return tx.Eager().ValidateAndCreate(u)
+}
+
+func (u *User) isAdmin() bool {
+	return u.Type == 1
 }

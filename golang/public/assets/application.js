@@ -93,17 +93,6 @@ eval("// extracted by mini-css-extract-plugin\n\n//# sourceURL=webpack:///./asse
 
 /***/ }),
 
-/***/ "./assets/css/vendors.scss":
-/*!*********************************!*\
-  !*** ./assets/css/vendors.scss ***!
-  \*********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-eval("// extracted by mini-css-extract-plugin\n\n//# sourceURL=webpack:///./assets/css/vendors.scss?");
-
-/***/ }),
-
 /***/ "./assets/js/application.js":
 /*!**********************************!*\
   !*** ./assets/js/application.js ***!
@@ -228,13 +217,13 @@ eval("var g;\r\n\r\n// This works in non-strict mode\r\ng = (function() {\r\n\tr
 /***/ }),
 
 /***/ 0:
-/*!***************************************************************************************************************************************!*\
-  !*** multi ./node_modules/jquery-ujs/src/rails.js ./assets/css/application.scss ./assets/css/vendors.scss ./assets/js/application.js ***!
-  \***************************************************************************************************************************************/
+/*!*************************************************************************************************************!*\
+  !*** multi ./node_modules/jquery-ujs/src/rails.js ./assets/css/application.scss ./assets/js/application.js ***!
+  \*************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("__webpack_require__(/*! ./node_modules/jquery-ujs/src/rails.js */\"./node_modules/jquery-ujs/src/rails.js\");\n__webpack_require__(/*! ./assets/css/application.scss */\"./assets/css/application.scss\");\n__webpack_require__(/*! ./assets/css/vendors.scss */\"./assets/css/vendors.scss\");\nmodule.exports = __webpack_require__(/*! ./assets/js/application.js */\"./assets/js/application.js\");\n\n\n//# sourceURL=webpack:///multi_./node_modules/jquery-ujs/src/rails.js_./assets/css/application.scss_./assets/css/vendors.scss_./assets/js/application.js?");
+eval("__webpack_require__(/*! ./node_modules/jquery-ujs/src/rails.js */\"./node_modules/jquery-ujs/src/rails.js\");\n__webpack_require__(/*! ./assets/css/application.scss */\"./assets/css/application.scss\");\nmodule.exports = __webpack_require__(/*! ./assets/js/application.js */\"./assets/js/application.js\");\n\n\n//# sourceURL=webpack:///multi_./node_modules/jquery-ujs/src/rails.js_./assets/css/application.scss_./assets/js/application.js?");
 
 /***/ })
 

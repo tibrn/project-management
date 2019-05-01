@@ -1,29 +1,55 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app>
+    <v-navigation-drawer app></v-navigation-drawer>
+    <v-toolbar app></v-toolbar>
+    <v-content>
+      <router-view></router-view>
+    </v-content>
+    <v-footer app></v-footer>
+    <v-snackbar
+      v-if="queue.message"
+      v-model="queue.isMessage"
+      :top="true"
+      :color="queue.message['message-type']"
+      :timeout="1000"
+    >
+      {{ queue.message.text }}
+      <v-btn flat @click="queue.closeMessage">
+        Close
+      </v-btn>
+    </v-snackbar>
+  </v-app>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
-    }
+<script lang="ts">
+// const AuthLayout = () =>
+//   import(/* webpackChunkName: "auth" */ "@/layouts/AuthLayout.vue");
+// const AppLayout = () => import("@/layouts/AppLayout.vue");
+// const SimpleLayout = () => import("@/layouts/SimpleLayout.vue");
+import { Getter } from "vuex-class";
+import { Component, Vue } from "vue-property-decorator";
+import Vuetify from "vuetify/lib";
+import { QueueMessages } from "@/class/QueueMessages";
+console.log(Vuetify);
+//TODO: Tree Shaking dupa ce ajung intr-un punct in care sa imi dau seama de
+//TODO: ce componente am nevoie
+Vue.use(Vuetify);
+@Component({
+  name: "App"
+  // components: {
+  //   "auth-layout": AuthLayout,
+  //   "app-layout": AppLayout,
+  //   "simple-layout": SimpleLayout
+  // }
+})
+export default class App extends Vue {
+  @Getter("layouts/layout") layout!: string;
+  @Getter("user/queue") queue!: QueueMessages;
+
+  created() {
+    console.log(this.$store);
+    console.log(this.queue);
   }
 }
-</style>
+</script>
+<style lang="scss"></style>

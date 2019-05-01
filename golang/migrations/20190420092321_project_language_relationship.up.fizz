@@ -1,4 +1,5 @@
 create_table("projects_languages") {
+    t.Column("id","integer",{primary: true})
 	t.Column("project_id", "uuid",{})
     t.Column("language_id","integer",{})
     t.Column("usage","float",{})

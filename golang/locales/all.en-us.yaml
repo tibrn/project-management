@@ -1,3 +1,9 @@
 # For more information on using i18n see: https://github.com/nicksnyder/go-i18n
 - id: welcome_greeting
   translation: "Welcome to Buffalo (EN)"
+- id: message.server.error
+  translation: "Oops! Something went wrong! Please try again later!"
+- id: message.server.404
+  translation: "Oops! Nothing to see here. You found a broken link."
+- id: message.token.expired
+  translation: "Your current session has expired. Please login again to continue!"

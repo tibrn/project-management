@@ -12,9 +12,11 @@ type Comment struct {
 	ID        uint64    `json:"id" db:"id"`
 	UserID    uint64    `json:"user_id" db:"user_id"`
 	TaskID    uint64    `json:"task_id" db:"task_id"`
-	Content   string    `json:"content" db:"content"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	Content   string    `json:"content,omitempty" db:"content"`
+	CreatedAt time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" db:"updated_at"`
+	User      *User     `json:"user,omitempty" belongs_to:"users" db:"-"`
+	Task      *Task     `json:"task,omitempty" belongs_to:"tasks" db:"-"`
 }
 
 // String is not required by pop and may be deleted

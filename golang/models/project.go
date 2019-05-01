@@ -12,14 +12,16 @@ import (
 type Project struct {
 	ID          uuid.UUID `json:"id" db:"id"`
 	PlatformID  uint64    `json:"platform_id" db:"platform_id"`
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	Name        string    `json:"name,omitempty" db:"name"`
+	Description string    `json:"description,omitempty" db:"description"`
+	CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
-	Tasks     Tasks     `many_to_many:"projects_tasks"`
-	Languages Languages `many_to_many:"projects_languages"`
-	License   License   `has_one:"license"`
+	Tasks     *Tasks     `json:"tasks,omitempty" many_to_many:"projects_tasks" db:"-"`
+	Languages *Languages `json:"languages,omitempty" many_to_many:"projects_languages" db:"-"`
+	License   *License   `json:"licenses,omitempty" has_one:"license" db:"-"`
+	Platform  *Platform  `json:"platform,omitempty" belongs_to:"platforms" db:"-"`
+	Users     *Users     `json:"users,omitempty" many_to_many:"users_projects" db:"-"`
 }
 
 // String is not required by pop and may be deleted

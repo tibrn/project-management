@@ -1,62 +1,63 @@
 package actions
 
 import (
-	"bytes"
-	"encoding/json"
-	"io/ioutil"
+	"context"
 	"net/http"
 	"os"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/nulls"
+	"github.com/google/go-github/github"
+	"github.com/myWebsite/golang/models"
+	"golang.org/x/oauth2"
 )
 
 type Platform struct{}
 
 func (Platform) GithubCallback(c buffalo.Context) error {
-	params := c.Params()
-	if params.Get("code") != "" {
-		jsonValue, err := json.Marshal(map[string]string{"code": params.Get("code"), "client_id": os.Getenv("GITHUB_CLIENT_ID"), "client_secret": os.Getenv("GITHUB_CLIENT_SECRET")})
-		if err != nil {
-			return nil
-		}
-		// resp, err := http.Post("https://github.com/login/oauth/access_token", "application/json", bytes.NewBuffer(jsonValue))
 
-		client := &http.Client{}
-		req, err := http.NewRequest("POST", "https://github.com/login/oauth/access_token", bytes.NewReader(jsonValue))
-		req.Header.Add("Accept", "application/json")
-		req.Header.Add("Content-type", "application/json")
-		resp, err := client.Do(req)
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			return nil
-		}
-		data := ResponseGithub{}
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		errParse := json.Unmarshal(bodyBytes, &data)
-		if errParse != nil {
-			return nil
-		}
-
-		// tx, ok := c.Value("tx").(*pop.Connection)
-		// if !ok {
-		// 	return errors.WithStack(errors.New("no transaction found"))
-		// }
-
-		// user := c.Value("current_user").(*models.User)
-
+	oauthConfig := &oauth2.Config{
+		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  os.Getenv("GITHUB_AUTHORIZE_URL"),
+			TokenURL: os.Getenv("GITHUB_TOKEN_URL"),
+		},
 	}
-	return nil
-}
 
-type ResponseGithub struct {
-	AccessToken string `json:"access_token"`
-	Scope       string `json:"scope"`
-	TokenType   string `json:"token_type"`
-}
+	tkn, err := oauthConfig.Exchange(oauth2.NoContext, c.Param("code"))
+	if err != nil {
+		// Handle Error
+		return HTTP500(c)
+	}
 
-// func (Platform) GithubCallbackAuth(c buffalo.Context) error {
-// 	params := c.Params()
-// 	fmt.Println("AUTH")
-// 	fmt.Println(params)
-// 	return nil
-// }
+	if !tkn.Valid() {
+		return HTTP403(c, T.Translate(c, "message.token.invalid"))
+	}
+	tx := models.DB
+
+	client := github.NewClient(oauthConfig.Client(oauth2.NoContext, tkn))
+
+	limits, _, err := client.RateLimits(context.Background())
+
+	user := c.Value("current_user").(*models.User)
+
+	userPlatform := &models.UserPlatform{}
+	userPlatform.UserID = user.ID
+	userPlatform.PlatformID = 1
+	userPlatform.Token = tkn.AccessToken
+	userPlatform.TokenType = tkn.TokenType
+	userPlatform.Limit = int64(limits.Core.Limit)
+	userPlatform.ResetAt = nulls.NewTime(limits.Core.Reset.Time)
+
+	verrs, err := tx.ValidateAndCreate(userPlatform)
+
+	if err != nil {
+		return HTTP500(c)
+	}
+
+	if verrs.HasAny() {
+		return HTTP403(c, T.Translate(c, "token.not.created"), verrs.Errors)
+	}
+	return c.Redirect(http.StatusMovedPermanently, "/welcome")
+}

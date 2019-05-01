@@ -1,18 +1,31 @@
 <div class="Header">
     <div class="container">
         <div class="row">
+            <div class="Header__logo col-10 col-lg-2 col-xl-3">
+                <a href="<%= rootPath() %>">Baron Tiberiu</a>
+            </div>
             <div class="Header__toggle col-2">
 
             </div>
 
             <div class="Header__account col-lg-2 col-xl-3 order-lg-4">
-
+                <%= if (current_user) { %>
+                    <a class="Header__user clearfix" href="<%= dashboardPath({route : ""}) %>" title="Dashboard">
+                        <%= if (current_user.Settings.Avatar) { %>
+                        <img data-src="<%= current_user.Settings.Avatar %>" alt="<%= current_user.Name %>">
+                        <% } %>
+                        <span><%= current_user.Name %></span>
+                    </a>
+                <% } else { %>
+                    <a class="Header__login" href="<%= loginPath() %>" title="Sign in">Sign in</a>
+                    <a class="Header__btn btn btn-outline-light" href="<%= registerPath() %>" title="Register!">Register!</a>
+                <% } %>
             </div>
 
             <div class="Header__menu col-lg-8 col-xl-6 order-lg-3">
-                    <a href="<%= rootPath() %>"" title="Home">Home</a>
-                    <a href="<%= aboutPath() %>"" title="About">About</a>
-                    <a href="<%= projectsPath() %>"" title="Projects">Projects</a>
+                <a href="<%= rootPath() %>" title=" Home">Home</a>
+                <a href="<%= aboutPath() %>" title=" About">About</a>
+                <a href="<%= projectsPath() %>" title=" Projects">Projects</a>
             </div>
         </div>
     </div>

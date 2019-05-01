@@ -13,7 +13,6 @@ const configurator = {
       application: [
         './node_modules/jquery-ujs/src/rails.js',
         './assets/css/application.scss',
-        './assets/css/vendors.scss'
       ],
     }
 

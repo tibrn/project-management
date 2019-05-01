@@ -210,6 +210,7 @@ ALTER TABLE public.projects OWNER TO tibi;
 --
 
 CREATE TABLE public.projects_languages (
+    id integer NOT NULL,
     project_id uuid NOT NULL,
     language_id integer NOT NULL,
     usage numeric NOT NULL,
@@ -219,6 +220,28 @@ CREATE TABLE public.projects_languages (
 
 
 ALTER TABLE public.projects_languages OWNER TO tibi;
+
+--
+-- Name: projects_languages_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.projects_languages_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.projects_languages_id_seq OWNER TO tibi;
+
+--
+-- Name: projects_languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.projects_languages_id_seq OWNED BY public.projects_languages.id;
+
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: tibi
@@ -280,12 +303,35 @@ CREATE TABLE public.user_settings (
     id integer NOT NULL,
     user_id integer NOT NULL,
     avatar character varying(255),
+    theme character varying(255) DEFAULT 'default'::character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
 
 
 ALTER TABLE public.user_settings OWNER TO tibi;
+
+--
+-- Name: user_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.user_settings_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_settings_id_seq OWNER TO tibi;
+
+--
+-- Name: user_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.user_settings_id_seq OWNED BY public.user_settings.id;
+
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: tibi
@@ -299,7 +345,7 @@ CREATE TABLE public.users (
     remember_token character varying(255),
     slug character varying(255),
     type integer DEFAULT 0 NOT NULL,
-    joined_at timestamp without time zone NOT NULL,
+    joined_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -334,6 +380,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 --
 
 CREATE TABLE public.users_languages (
+    id integer NOT NULL,
     user_id integer NOT NULL,
     language_id integer NOT NULL,
     proficiency numeric NOT NULL,
@@ -345,16 +392,39 @@ CREATE TABLE public.users_languages (
 ALTER TABLE public.users_languages OWNER TO tibi;
 
 --
+-- Name: users_languages_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.users_languages_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_languages_id_seq OWNER TO tibi;
+
+--
+-- Name: users_languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.users_languages_id_seq OWNED BY public.users_languages.id;
+
+
+--
 -- Name: users_platforms; Type: TABLE; Schema: public; Owner: tibi
 --
 
 CREATE TABLE public.users_platforms (
-    user_id integer NOT NULL,
-    platform_id integer NOT NULL,
+    id integer NOT NULL,
+    user_id integer,
+    platform_id integer,
     token character varying(255),
     token_type character varying(255),
-    "limit" integer NOT NULL,
-    reset_at timestamp without time zone NOT NULL,
+    limit_requests integer,
+    reset_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -363,10 +433,33 @@ CREATE TABLE public.users_platforms (
 ALTER TABLE public.users_platforms OWNER TO tibi;
 
 --
+-- Name: users_platforms_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.users_platforms_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_platforms_id_seq OWNER TO tibi;
+
+--
+-- Name: users_platforms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.users_platforms_id_seq OWNED BY public.users_platforms.id;
+
+
+--
 -- Name: users_projects; Type: TABLE; Schema: public; Owner: tibi
 --
 
 CREATE TABLE public.users_projects (
+    id integer NOT NULL,
     user_id integer NOT NULL,
     project_id uuid NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -377,10 +470,33 @@ CREATE TABLE public.users_projects (
 ALTER TABLE public.users_projects OWNER TO tibi;
 
 --
+-- Name: users_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.users_projects_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_projects_id_seq OWNER TO tibi;
+
+--
+-- Name: users_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.users_projects_id_seq OWNED BY public.users_projects.id;
+
+
+--
 -- Name: users_tasks; Type: TABLE; Schema: public; Owner: tibi
 --
 
 CREATE TABLE public.users_tasks (
+    id integer NOT NULL,
     user_id integer NOT NULL,
     task_id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -389,6 +505,28 @@ CREATE TABLE public.users_tasks (
 
 
 ALTER TABLE public.users_tasks OWNER TO tibi;
+
+--
+-- Name: users_tasks_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.users_tasks_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_tasks_id_seq OWNER TO tibi;
+
+--
+-- Name: users_tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.users_tasks_id_seq OWNED BY public.users_tasks.id;
+
 
 --
 -- Name: comments id; Type: DEFAULT; Schema: public; Owner: tibi
@@ -419,6 +557,13 @@ ALTER TABLE ONLY public.platforms ALTER COLUMN id SET DEFAULT nextval('public.pl
 
 
 --
+-- Name: projects_languages id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.projects_languages ALTER COLUMN id SET DEFAULT nextval('public.projects_languages_id_seq'::regclass);
+
+
+--
 -- Name: tasks id; Type: DEFAULT; Schema: public; Owner: tibi
 --
 
@@ -426,10 +571,45 @@ ALTER TABLE ONLY public.tasks ALTER COLUMN id SET DEFAULT nextval('public.tasks_
 
 
 --
+-- Name: user_settings id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_settings ALTER COLUMN id SET DEFAULT nextval('public.user_settings_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: tibi
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: users_languages id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_languages ALTER COLUMN id SET DEFAULT nextval('public.users_languages_id_seq'::regclass);
+
+
+--
+-- Name: users_platforms id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_platforms ALTER COLUMN id SET DEFAULT nextval('public.users_platforms_id_seq'::regclass);
+
+
+--
+-- Name: users_projects id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_projects ALTER COLUMN id SET DEFAULT nextval('public.users_projects_id_seq'::regclass);
+
+
+--
+-- Name: users_tasks id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_tasks ALTER COLUMN id SET DEFAULT nextval('public.users_tasks_id_seq'::regclass);
 
 
 --
@@ -465,6 +645,14 @@ ALTER TABLE ONLY public.platforms
 
 
 --
+-- Name: projects_languages projects_languages_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.projects_languages
+    ADD CONSTRAINT projects_languages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
 --
 
@@ -481,11 +669,51 @@ ALTER TABLE ONLY public.tasks
 
 
 --
+-- Name: user_settings user_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_settings
+    ADD CONSTRAINT user_settings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_languages users_languages_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_languages
+    ADD CONSTRAINT users_languages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
 --
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_platforms users_platforms_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_platforms
+    ADD CONSTRAINT users_platforms_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_projects users_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_projects
+    ADD CONSTRAINT users_projects_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_tasks users_tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.users_tasks
+    ADD CONSTRAINT users_tasks_pkey PRIMARY KEY (id);
 
 
 --

@@ -2,8 +2,8 @@
 // Variables
 @import "inc/_variables";
 @import "inc/_mixins";
-@import "inc/_bs4-custom";
 @import "inc/_bs4-mixins";
 
 
-@import "parts/nav.scss";
+@import "parts/nav";
+@import "parts/home";
