@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -9,8 +10,14 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gosimple/slug"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	ADMIN  = 1
+	CLIENT = 2
 )
 
 type User struct {
@@ -27,12 +34,12 @@ type User struct {
 	PasswordPlain        string       `json:"password,omitempty" form:"password" db:"-" `
 	PasswordConfirmation string       `json:"password_confirmation,omitempty"  form:"password_confirmation" db:"-"`
 	//Relationships
-	Settings  *UserSetting `json:"settings,omitempty" has_one:"user_settings" db:"-"`
-	Tasks     *Tasks       `json:"tasks,omitempty" many_to_many:"users_tasks" db:"-"`
-	Projects  *Projects    `json:"projects,omitempty" many_to_many:"users_projects" db:"-"`
-	Languages *Languages   `json:"languages,omitempty" many_to_many:"users_languages" db:"-"`
-	Comments  *Comments    `json:"comments,omitempty" has_many:"comments" db:"-" order_by:"created_at desc"`
-	Accounts  *Platforms   `json:"accounts,omitempty" many_to_many:"users_platforms" db:"-"`
+	Settings *UserSetting `json:"settings,omitempty" has_one:"user_setting" db:"-"`
+	//Tasks     *Tasks       `json:"tasks,omitempty" many_to_many:"users_tasks" db:"-"`
+	//Projects  *Projects    `json:"projects,omitempty" many_to_many:"users_projects" db:"-"`
+	//Languages *Languages   `json:"languages,omitempty" many_to_many:"users_languages" db:"-"`
+	//Comments *Comments  `json:"comments,omitempty" has_many:"comments" db:"-" order_by:"created_at desc"`
+	//Accounts *Platforms `json:"accounts,omitempty" many_to_many:"users_platforms" db:"-"`
 }
 
 //SafeUser is used to send user infromation
@@ -118,9 +125,24 @@ func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 		return validate.NewErrors(), errors.WithStack(err)
 	}
 	u.Password = string(ph)
+	u.Slug = u.unqiueSlug()
 	return tx.Eager().ValidateAndCreate(u)
 }
 
 func (u *User) isAdmin() bool {
-	return u.Type == 1
+	return u.Type == ADMIN
+}
+
+func (u *User) isClient() bool {
+	return u.Type == CLIENT
+}
+
+func (u *User) unqiueSlug() nulls.String {
+	slug := slug.Make(u.Name)
+	nr, _ := DB.Where("slug LIKE %?%", slug).Count(u)
+
+	if nr > 0 {
+		slug += fmt.Sprintf("%d", nr+1)
+	}
+	return nulls.NewString(slug)
 }

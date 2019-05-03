@@ -1,9 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-
+import store from "@/store";
 Vue.use(Vuex);
-
+const LOCATION = "store/index";
 // Load store modules dynamically.
 const requireContext = require.context("@/store/modules/", false, /.*\.ts$/);
 
@@ -40,7 +40,7 @@ export default new Vuex.Store({
 
   actions: {
     // init store
-    async INIT_STORE({ dispatch, commit }) {
+    async INIT_STORE() {
       let initData = false;
       // get state hydration data from inline script or via API call
       let windowData = <any>window;
@@ -49,21 +49,22 @@ export default new Vuex.Store({
       } else {
         try {
           const { data } = await axios.get("/api/auth/refresh");
-          if (data.user_data) {
-            initData = data.user_data;
+          if (data) {
+            initData = data;
           }
         } catch (e) {
-          console.log(e);
+          console.log(LOCATION, e);
         } finally {
-          commit("IS_SERVE_MODE");
+          store.commit("IS_SERVE_MODE");
         }
       }
+
       // if user data is available, init state modules
       if (initData) {
-        dispatch("INIT_STORE_DATA", initData);
+        store.dispatch("INIT_STORE_DATA", initData);
       }
       // mark state as initialized
-      commit("INIT");
+      store.commit("INIT");
     },
     // init store data
     INIT_STORE_DATA({ commit }, storeData) {

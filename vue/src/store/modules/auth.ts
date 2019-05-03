@@ -1,7 +1,6 @@
 import axios from "axios";
 import * as types from "@/store/mutation-types";
 import router from "@/router/";
-import "@/types";
 import { AuthData, AuthRefresh } from "@/types";
 import { Dispatch } from "vuex";
 

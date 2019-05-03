@@ -1,11 +1,16 @@
 create_table("users_platforms") {
     t.Column("id","integer",{primary: true})
+    t.Column("id_on_platform","string",{null : false})
 	t.Column("user_id", "integer",{null : false})
     t.Column("platform_id","integer",{null : false})
+    t.Column("username","string",{null:false})
     t.Column("token","string",{null : false})
     t.Column("token_type","string",{null : false})
     t.Column("limit_requests","integer",{null : false})
     t.Column("reset_at","timestamp",{null : true})
+    t.Column("url","string",{null : false})
 	t.ForeignKey("platform_id", {"platforms": ["id"]}, {"on_delete": "cascade"})
     t.ForeignKey("user_id", {"users": ["id"]}, {"on_delete": "cascade"})
+    t.Index("id_on_platform", {"unique": true})
+    t.Index("url", {"unique": true})
 }

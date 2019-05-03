@@ -29,7 +29,7 @@ const userModel: StateUser = {
   type: -1,
   theme: "light",
 
-  queueMessages: QueueMessages.getInstance(100000)
+  queueMessages: QueueMessages.getInstance(2100)
 };
 
 // state
@@ -73,10 +73,6 @@ export const mutations = {
     } catch (e) {
       console.log({ Location: LOCATION, Error: e });
     }
-  },
-
-  [types.QUEUE_GLOBAL_MESSAGE](state: StateUser, data: Message) {
-    state.queueMessages.sendMessage(data);
   }
 };
 

@@ -1,10 +1,8 @@
 <template>
   <div class="Auth">
-    <Transition name="fade" mode="out-in">
-      <RouterView :key="$route.name" />
-    </Transition>
-
-    <div class="Auth__bg" />
+    <v-content>
+      <router-view></router-view>
+    </v-content>
   </div>
 </template>
 

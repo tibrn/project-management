@@ -4,7 +4,8 @@ import Router from "vue-router";
 import { sync } from "vuex-router-sync";
 import routes from "./routes";
 import store from "@/store/";
-import { Route } from "vue-router";
+import { Route, NavigationGuard } from "vue-router";
+import after from "@/middleware/after";
 // init vue-meta, vue-router
 Vue.use(Meta);
 Vue.use(Router);
@@ -18,9 +19,15 @@ const router = new Router({
 // add router to store
 sync(store, router);
 
-// global guards
-// router.beforeEach((to: Route, from: Route, next) => {});
+router.afterEach(async (to: Route, from: Route) => {
+  console.log("CEVA");
+});
 
-// router.afterEach((to: Route, from: Route, next) => {});
+// global guards
+router.beforeEach(async (to: Route, from: Route, next) => {
+  if (!store.getters["is_init"]) {
+    await store.dispatch("INIT_STORE");
+  }
+});
 
 export default router;

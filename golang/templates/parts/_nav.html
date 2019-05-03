@@ -10,7 +10,7 @@
 
             <div class="Header__account col-lg-2 col-xl-3 order-lg-4">
                 <%= if (current_user) { %>
-                    <a class="Header__user clearfix" href="<%= dashboardPath({route : ""}) %>" title="Dashboard">
+                    <a class="Header__user clearfix" href="<%= dashboardPath({rest : ""}) %>" title="Dashboard">
                         <%= if (current_user.Settings.Avatar) { %>
                         <img data-src="<%= current_user.Settings.Avatar %>" alt="<%= current_user.Name %>">
                         <% } %>

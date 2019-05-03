@@ -102,9 +102,9 @@ func App() *buffalo.App {
 
 		app.GET("/welcome", RedirectPlatformHandler)
 
-		dashboard := app.Group("/dashboard")
+		app.GET("/dashboard", VueHandler)
 
-		dashboard.GET("/{route:^*}", VueHandler)
+		app.GET("/dashboard/{rest:.*}", VueHandler)
 
 		// Redirects to VUE
 		app.GET("/login", VueHandler)

@@ -10,12 +10,14 @@ import (
 )
 
 type Project struct {
-	ID          uuid.UUID `json:"id" db:"id"`
-	PlatformID  uint64    `json:"platform_id" db:"platform_id"`
-	Name        string    `json:"name,omitempty" db:"name"`
-	Description string    `json:"description,omitempty" db:"description"`
-	CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at,omitempty" db:"updated_at"`
+	ID           uuid.UUID `json:"id" db:"id"`
+	PlatformID   int64     `json:"platform_id" db:"platform_id"`
+	IDOnPlatform int64     `json:"id_on_platform" db:"id_on_platform"`
+	Name         string    `json:"name,omitempty" db:"name"`
+	Description  string    `json:"description,omitempty" db:"description"`
+	URL          string    `json:"url" db:"url"`
+	CreatedAt    time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
 	Tasks     *Tasks     `json:"tasks,omitempty" many_to_many:"projects_tasks" db:"-"`
 	Languages *Languages `json:"languages,omitempty" many_to_many:"projects_languages" db:"-"`

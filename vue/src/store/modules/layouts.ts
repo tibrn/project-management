@@ -12,12 +12,7 @@ interface StateLayout {
 export const getters = {
   // get current layout name
   layout(state: StateLayout) {
-    return state.status;
-  },
-
-  // get default layout name
-  default(state: StateLayout) {
-    return state.default;
+    return state.status || state.default;
   }
 };
 
@@ -25,7 +20,7 @@ export const mutations = {
   [types.SET_LAYOUT](state: StateLayout, payload: string) {
     // set/change app layout
     state.status = payload;
-
+    console.log("LAYOUT", payload);
     // add layout name as class to <body> tag
     const body = document.querySelector("body");
     if (body) {

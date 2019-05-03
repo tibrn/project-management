@@ -1,3 +1,4 @@
 import "./user";
 import { AuthData, AuthRefresh } from "./auth";
-export { AuthData, AuthRefresh };
+import Next from "./router";
+export { Next, AuthData, AuthRefresh };

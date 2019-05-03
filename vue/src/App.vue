@@ -1,20 +1,15 @@
 <template>
   <v-app>
-    <v-navigation-drawer app></v-navigation-drawer>
-    <v-toolbar app></v-toolbar>
-    <v-content>
-      <router-view></router-view>
-    </v-content>
-    <v-footer app></v-footer>
+    <Component :is="layout" v-if="layout" />
     <v-snackbar
       v-if="queue.message"
       v-model="queue.isMessage"
       :top="true"
       :color="queue.message['message-type']"
-      :timeout="1000"
+      :timeout="2000"
     >
       {{ queue.message.text }}
-      <v-btn flat @click="queue.closeMessage">
+      <v-btn flat @click="queue.closeMessage()">
         Close
       </v-btn>
     </v-snackbar>
@@ -22,10 +17,12 @@
 </template>
 
 <script lang="ts">
-// const AuthLayout = () =>
-//   import(/* webpackChunkName: "auth" */ "@/layouts/AuthLayout.vue");
-// const AppLayout = () => import("@/layouts/AppLayout.vue");
-// const SimpleLayout = () => import("@/layouts/SimpleLayout.vue");
+const AuthLayout = () =>
+  import(/* webpackChunkName: "layouts" */ "@/layouts/AuthLayout.vue");
+const AppLayout = () =>
+  import(/* webpackChunkName: "layouts" */ "@/layouts/AppLayout.vue");
+const SimpleLayout = () =>
+  import(/* webpackChunkName: "layouts" */ "@/layouts/SimpleLayout.vue");
 import { Getter } from "vuex-class";
 import { Component, Vue } from "vue-property-decorator";
 import Vuetify from "vuetify/lib";
@@ -35,20 +32,19 @@ console.log(Vuetify);
 //TODO: ce componente am nevoie
 Vue.use(Vuetify);
 @Component({
-  name: "App"
-  // components: {
-  //   "auth-layout": AuthLayout,
-  //   "app-layout": AppLayout,
-  //   "simple-layout": SimpleLayout
-  // }
+  name: "App",
+  components: {
+    "auth-layout": AuthLayout,
+    "app-layout": AppLayout,
+    "simple-layout": SimpleLayout
+  }
 })
 export default class App extends Vue {
   @Getter("layouts/layout") layout!: string;
   @Getter("user/queue") queue!: QueueMessages;
 
   created() {
-    console.log(this.$store);
-    console.log(this.queue);
+    this.queue.sendMessage({ "message-type": "success", text: "TEST" });
   }
 }
 </script>

@@ -10,17 +10,20 @@ import (
 )
 
 type UserPlatform struct {
-	ID         int64      `json:"id" db:"id"`
-	UserID     int64      `json:"user_id" db:"user_id"`
-	PlatformID int64      `json:"platform_id" db:"platform_id"`
-	Token      string     `json:"-" db:"token"`
-	TokenType  string     `json:"-" db:"token_type"`
-	Limit      int64      `json:"limit,omitempty" db:"limit_requests"`
-	ResetAt    nulls.Time `json:"reset_at,omitempty" db:"reset_at"`
-	CreatedAt  time.Time  `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at,omitempty" db:"updated_at"`
-	User       User       `json:"user,omitempty" belongs_to:"users" db:"-"`
-	Platform   Platform   `json:"platform,omitempty" belongs_to:"platforms" db:"-"`
+	ID           int64      `json:"id" db:"id"`
+	IDOnPlatform int64      `json:"id_on_platform" db:"id_on_platform"`
+	UserID       int64      `json:"user_id" db:"user_id"`
+	PlatformID   int64      `json:"platform_id" db:"platform_id"`
+	Username     string     `json:"username" db:"username"`
+	URL          string     `json:"url" db:"url"`
+	Token        string     `json:"-" db:"token"`
+	TokenType    string     `json:"-" db:"token_type"`
+	Limit        int64      `json:"limit,omitempty" db:"limit_requests"`
+	ResetAt      nulls.Time `json:"reset_at,omitempty" db:"reset_at"`
+	CreatedAt    time.Time  `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at,omitempty" db:"updated_at"`
+	User         User       `json:"user,omitempty" belongs_to:"users" db:"-"`
+	Platform     Platform   `json:"platform,omitempty" belongs_to:"platforms" db:"-"`
 }
 
 // String is not required by pop and may be deleted

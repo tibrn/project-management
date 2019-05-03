@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gobuffalo/buffalo"
@@ -200,7 +201,9 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 		if uid := c.Session().Get("current_user_id"); uid != nil {
 			u := &models.User{}
 			tx := c.Value("tx").(*pop.Connection)
-			err := tx.Eager("Settings").Find(u, uid)
+
+			err := tx.Eager().Find(u, uid)
+			fmt.Println(u)
 			if err != nil {
 				return errors.WithStack(err)
 			}

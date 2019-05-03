@@ -18,8 +18,6 @@ export class QueueMessages {
     if (QueueMessages.instance === undefined) {
       if (typeof timeout === "number")
         QueueMessages.instance = new QueueMessages(timeout);
-      console.log("QUEUE MESSAGE");
-      console.log(QueueMessages.instance);
     }
     return QueueMessages.instance;
   }
@@ -34,7 +32,6 @@ export class QueueMessages {
   //Show message from queue
   //Recursiv implementation
   private showMessage() {
-    console.log(this);
     if (this.messages.length > 0) {
       this.message = this.messages[0];
       this.isMessage = true;

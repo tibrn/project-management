@@ -9,7 +9,7 @@ export default [
     name: "login",
     component: Login,
     meta: {
-      //layout: "auth-layout",
+      layout: "auth-layout"
       //middleware: [guest]
     }
   },
@@ -18,7 +18,7 @@ export default [
     name: "register",
     component: Register,
     meta: {
-      //layout: "auth-layout",
+      layout: "auth-layout"
       // middleware: [guest]
     }
   }
