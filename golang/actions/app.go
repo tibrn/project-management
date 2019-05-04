@@ -92,7 +92,7 @@ func App() *buffalo.App {
 		app.Use(SetCurrentUser)
 		app.Use(Authorize)
 
-		app.GET("/test", githubProjects)
+		app.GET("/test", Test)
 
 		app.GET("/", HomeHandler)
 

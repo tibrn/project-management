@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :dark="isDarkTheme" :light="isLightTheme">
     <Component :is="layout" v-if="layout" />
     <v-snackbar
       v-if="queue.message"
@@ -25,12 +25,7 @@ const SimpleLayout = () =>
   import(/* webpackChunkName: "layouts" */ "@/layouts/SimpleLayout.vue");
 import { Getter } from "vuex-class";
 import { Component, Vue } from "vue-property-decorator";
-import Vuetify from "vuetify/lib";
 import { QueueMessages } from "@/class/QueueMessages";
-console.log(Vuetify);
-//TODO: Tree Shaking dupa ce ajung intr-un punct in care sa imi dau seama de
-//TODO: ce componente am nevoie
-Vue.use(Vuetify);
 @Component({
   name: "App",
   components: {
@@ -42,10 +37,15 @@ Vue.use(Vuetify);
 export default class App extends Vue {
   @Getter("layouts/layout") layout!: string;
   @Getter("user/queue") queue!: QueueMessages;
+  @Getter("user/isDarkTheme") isDarkTheme!: boolean;
+  @Getter("user/isLightTheme") isLightTheme!: boolean;
 
   created() {
-    this.queue.sendMessage({ "message-type": "success", text: "TEST" });
+    // this.queue.sendMessage({ "message-type": "success", text: "TEST" });
   }
 }
 </script>
-<style lang="scss"></style>
+<style lang="scss">
+@import "../node_modules/@mdi/font/css/materialdesignicons.css";
+@import "../node_modules/roboto-fontface/css/roboto/roboto-fontface.css";
+</style>

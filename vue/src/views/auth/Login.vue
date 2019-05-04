@@ -1,55 +1,69 @@
 <template>
-  <div>
-    <v-form ref="form">
-      <v-text-field
-        v-model="form.email"
-        :rules="rules.email"
-        label="E-mail"
-        required
-      ></v-text-field>
-      <v-text-field
-        v-model="form.password"
-        :rules="rules.password"
-        :type="'password'"
-        label="Password"
-        required
-      ></v-text-field>
-      <v-checkbox v-model="form.remember"></v-checkbox>
-      <v-btn
-        :loading="isLoading"
-        :disabled="isLoading"
-        :type="'password'"
-        :round="true"
-        size="normal"
-        @click="login"
-      >
-        Login
-      </v-btn>
-    </v-form>
+  <v-layout align-center justify-center>
+    <v-flex xs12 sm8 md4>
+      <v-card class="elevation-12">
+        <v-toolbar dark color="primary">
+          <v-toolbar-title>Login</v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-form ref="form">
+            <v-text-field
+              v-model="form.email"
+              :rules="rules.email"
+              label="E-mail"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="form.password"
+              :rules="rules.password"
+              :append-icon="show ? 'visibility_off' : 'visibility'"
+              @click:append="() => (show = !show)"
+              :type="show ? 'text' : 'password'"
+              label="Password"
+              required
+            ></v-text-field>
+            <v-checkbox v-model="form.remember">
+              <span slot="label">
+                Remember
+              </span>
+            </v-checkbox>
+            <v-btn
+              :loading="isLoading"
+              :disabled="isLoading"
+              :type="'password'"
+              :round="true"
+              size="normal"
+              @click="login"
+            >
+              Login
+            </v-btn>
+          </v-form>
 
-    <p class="">
-      You don't have an account?
-      <RouterLink :to="{ name: 'register' }">
-        Sign up here!
-      </RouterLink>
-    </p>
-  </div>
+          <p class="">
+            You don't have an account?
+            <RouterLink :to="{ name: 'register' }">
+              Sign up here!
+            </RouterLink>
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 import { VMessages } from "vuetify/lib";
-import { Mutation } from "vuex-class";
-import { Message } from "@/class/QueueMessages";
+import { Getter } from "vuex-class";
+import { QueueMessages } from "@/class/QueueMessages";
 @Component({
   name: "Login"
 })
 export default class extends Vue {
-  @Mutation("user/QUEUE_GLOBAL_MESSAGE") queueMessage!: (
-    message: Message
-  ) => void;
+  @Getter("user/queue") queue!: QueueMessages;
   isLoading = false;
   isError = false;
+  show = false;
   form = {
     password: "",
     email: "",
@@ -69,9 +83,7 @@ export default class extends Vue {
         input.length > 6 || "Password must be greater than 6 characters"
     ]
   };
-  mounted() {
-    this.queueMessage({ text: "TEST", "message-type": "success" });
-  }
+  mounted() {}
   async login(event: Event) {
     event.preventDefault();
     this.isLoading = true;

@@ -9,14 +9,17 @@ import (
 )
 
 type License struct {
-	ID          uint64    `json:"id" db:"id"`
-	ProjectID   string    `json:"project_id" db:"project_id"`
+	ID          int64     `json:"id" db:"id"`
 	Name        string    `json:"name,omitempty" db:"name"`
 	Description string    `json:"description,omitempty" db:"description"`
+	Body        string    `json:"body,omitempty" db:"body"`
+	Nickname    string    `json:"nickname,omitempty" db:"nickname"`
+	Key         string    `json:"key,omitempty" db:"key"`
+	URL         string    `json:"url,omitempty" db:"url"`
 	CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
-	Project *Project `belongs_to:"projects" db:"-"`
+	Project *Project `has_one:"projects" db:"-"`
 }
 
 // String is not required by pop and may be deleted

@@ -1,7 +1,9 @@
 <template>
   <div class="Auth">
     <v-content>
-      <router-view></router-view>
+      <v-container fluid>
+        <router-view />
+      </v-container>
     </v-content>
   </div>
 </template>
@@ -11,7 +13,11 @@ import { Vue, Component } from "vue-property-decorator";
 @Component({
   name: "AuthLayout"
 })
-export default class extends Vue {}
+export default class extends Vue {
+  created() {
+    console.log("Auth-Layout");
+  }
+}
 </script>
 
 <style lang="scss"></style>

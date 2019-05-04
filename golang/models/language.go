@@ -9,8 +9,9 @@ import (
 )
 
 type Language struct {
-	ID            uint64    `json:"id" db:"id"`
+	ID            int64     `json:"id" db:"id"`
 	Name          string    `json:"name,omitempty" db:"name"`
+	Color         string    `json:"color,omitempty" db:"color"`
 	Description   string    `json:"description,omitempty" db:"description"`
 	Documentation string    `json:"documentation,omitempty" db:"documentation"`
 	CreatedAt     time.Time `json:"created_at,omitempty" db:"created_at"`

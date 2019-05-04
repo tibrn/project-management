@@ -67,3 +67,10 @@ func VueHandler(c buffalo.Context) error {
 
 	return c.Render(200, r.HTML("vue/index.html", "layout/empty.html"))
 }
+
+//Test is used to make test to retrive data from platforms
+func Test(c buffalo.Context) error {
+	ID := c.Session().Get("current_user_id").(int64)
+	Init(ID)
+	return nil
+}

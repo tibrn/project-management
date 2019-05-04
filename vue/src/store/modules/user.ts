@@ -27,7 +27,7 @@ const userModel: StateUser = {
   email: "",
   avatar: "",
   type: -1,
-  theme: "light",
+  theme: "dark",
 
   queueMessages: QueueMessages.getInstance(2100)
 };
@@ -46,7 +46,9 @@ export const getters = {
   type: (state: StateUser) => state.type,
   theme: (state: StateUser) => state.theme,
 
-  queue: (state: StateUser) => state.queueMessages
+  queue: (state: StateUser) => state.queueMessages,
+  isDarkTheme: (state: StateUser) => state.theme === "dark",
+  isLightTheme: (state: StateUser) => state.theme === "light"
   // notifications_count: state => (state.is_init) ? state.data.count.notifications : 0,
 };
 

@@ -1,9 +1,11 @@
 <template>
   <div>
-    <v-navigation-drawer app></v-navigation-drawer>
     <v-toolbar app></v-toolbar>
+    <Sidebar />
     <v-content>
-      <router-view></router-view>
+      <v-container fluid>
+        <router-view></router-view>
+      </v-container>
     </v-content>
     <v-footer app></v-footer>
   </div>
@@ -11,9 +13,17 @@
 
 <script>
 import { Vue, Component } from "vue-property-decorator";
-
+const Sidebar = () =>
+  import(/* webpackChunkName: "sidebar" */ "@/components/Sidebar.vue");
 @Component({
-  name: "AppLayout"
+  name: "AppLayout",
+  components: {
+    Sidebar
+  }
 })
-export default class extends Vue {}
+export default class extends Vue {
+  created() {
+    console.log("App-Layout");
+  }
+}
 </script>

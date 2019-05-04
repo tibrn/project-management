@@ -28,7 +28,7 @@
 import { Vue, Component } from "vue-property-decorator";
 
 @Component({
-  name: "404"
+  name: "NotFound"
 })
 export default class extends Vue {}
 </script>

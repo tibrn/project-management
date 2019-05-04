@@ -202,7 +202,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 			u := &models.User{}
 			tx := c.Value("tx").(*pop.Connection)
 
-			err := tx.Eager().Find(u, uid)
+			err := tx.Eager("Settings").Find(u, uid)
 			fmt.Println(u)
 			if err != nil {
 				return errors.WithStack(err)

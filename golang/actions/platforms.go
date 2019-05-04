@@ -60,8 +60,8 @@ func (Platform) GithubCallback(c buffalo.Context) error {
 	userPlatform.TokenType = tkn.TokenType
 	userPlatform.Limit = int64(limits.Core.Limit)
 	userPlatform.ResetAt = nulls.NewTime(limits.Core.Reset.Time)
-	userPlatform.Username = userGithub.GetName()
-	userPlatform.URL = userGithub.GetLogin()
+	userPlatform.Username = userGithub.GetLogin()
+	userPlatform.URL = userGithub.GetURL()
 
 	verrs, err := models.DB.ValidateAndCreate(userPlatform)
 

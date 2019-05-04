@@ -1,10 +1,11 @@
 import Vue from "vue";
 import Vuetify from "vuetify/lib";
 import "vuetify/src/stylus/app.styl";
-
+import en from "@/lang/en.json";
+import ro from "@/lang/ro.json";
 Vue.use(Vuetify, {
   theme: {
-    primary: "#ee44aa",
+    primary: "#2098D1",
     secondary: "#424242",
     accent: "#82B1FF",
     error: "#FF5252",
@@ -15,5 +16,9 @@ Vue.use(Vuetify, {
   options: {
     customProperties: true
   },
-  iconfont: "mdi"
+  iconfont: "mdi",
+  lang: {
+    locales: { en, ro },
+    current: "en"
+  }
 });

@@ -1,44 +1,52 @@
 <template>
-  <div>
-    <v-form ref="form">
-      <v-text-field
-        v-model="form.name"
-        :rules="rules.name"
-        label="Name"
-        required
-      ></v-text-field>
-      <v-text-field
-        v-model="form.email"
-        :rules="rules.email"
-        label="E-mail"
-        required
-      ></v-text-field>
-      <v-text-field
-        v-model="form.password"
-        :rules="rules.password"
-        :type="'password'"
-        label="Password"
-        required
-      ></v-text-field>
-      <v-text-field
-        v-model="form.password_confirmation"
-        :rules="rules.password_confirmation"
-        :type="'password'"
-        label="Password Confirmation"
-        required
-      ></v-text-field>
-      <v-btn
-        :loading="isLoading"
-        :disabled="isLoading"
-        :type="'password'"
-        :round="true"
-        size="normal"
-        @click="register"
-      >
-        Register
-      </v-btn>
-    </v-form>
-  </div>
+  <v-layout align-center justify-center>
+    <v-flex xs12 sm8 md4>
+      <v-card class="elevation-12">
+        <v-toolbar dark color="primary">
+          <v-toolbar-title>Register</v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-form ref="form">
+            <v-text-field
+              v-model="form.name"
+              :rules="rules.name"
+              label="Name"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="form.email"
+              :rules="rules.email"
+              label="E-mail"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="form.password"
+              :rules="rules.password"
+              :type="'password'"
+              label="Password"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="form.password_confirmation"
+              :rules="rules.password_confirmation"
+              :type="'password'"
+              label="Password Confirmation"
+              required
+            ></v-text-field>
+            <v-btn
+              :loading="isLoading"
+              :disabled="isLoading"
+              :type="'password'"
+              size="normal"
+              @click="register"
+            >
+              Register
+            </v-btn>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script lang="ts">
@@ -96,7 +104,7 @@ export default class extends Vue {
           this.$router.push({ name: "dashboard" });
         }
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     }
     this.isLoading = false;

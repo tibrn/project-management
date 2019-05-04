@@ -4,26 +4,29 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/gobuffalo/nulls"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 )
 
 type Project struct {
-	ID           uuid.UUID `json:"id" db:"id"`
-	PlatformID   int64     `json:"platform_id" db:"platform_id"`
-	IDOnPlatform int64     `json:"id_on_platform" db:"id_on_platform"`
-	Name         string    `json:"name,omitempty" db:"name"`
-	Description  string    `json:"description,omitempty" db:"description"`
-	URL          string    `json:"url" db:"url"`
-	CreatedAt    time.Time `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at,omitempty" db:"updated_at"`
+	ID           uuid.UUID    `json:"id" db:"id"`
+	PlatformID   int64        `json:"platform_id" db:"platform_id"`
+	LicenseID    nulls.Int64  `json:"license_id" db:"license_id"`
+	IDOnPlatform int64        `json:"id_on_platform" db:"id_on_platform"`
+	Name         string       `json:"name,omitempty" db:"name"`
+	Description  nulls.String `json:"description,omitempty" db:"description"`
+	URL          string       `json:"url" db:"url"`
+	CreatedAt    time.Time    `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
-	Tasks     *Tasks     `json:"tasks,omitempty" many_to_many:"projects_tasks" db:"-"`
-	Languages *Languages `json:"languages,omitempty" many_to_many:"projects_languages" db:"-"`
-	License   *License   `json:"licenses,omitempty" has_one:"license" db:"-"`
-	Platform  *Platform  `json:"platform,omitempty" belongs_to:"platforms" db:"-"`
-	Users     *Users     `json:"users,omitempty" many_to_many:"users_projects" db:"-"`
+	Tasks     Tasks     `json:"tasks,omitempty" many_to_many:"projects_tasks" db:"-"`
+	Languages Languages `json:"languages,omitempty" many_to_many:"projects_languages" db:"-"`
+	License   License   `json:"licenses,omitempty" belongs_to:"licenses" db:"-"`
+	Platform  Platform  `json:"platform,omitempty" belongs_to:"platforms" db:"-"`
+	Users     Users     `json:"users,omitempty" many_to_many:"users_projects" db:"-"`
 }
 
 // String is not required by pop and may be deleted

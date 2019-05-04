@@ -1,10 +1,12 @@
 create_table("projects") {
 	t.Column("id", "uuid", {primary: true})
 	t.Column("platform_id","integer",{})
+	t.Column("id_on_platform","integer",{})
+	t.Column("license_id","integer",{null : true})
 	t.Column("name", "string",{})
-	t.Column("description", "string",{})
+	t.Column("description", "string",{null : true})
 	t.Column("closed", "bool",{default:false})
 	t.Column("url", "string",{default:""})
-	t.Column("id_platform","integer",{null:true})
 	t.ForeignKey("platform_id", {"platforms": ["id"]}, {"on_delete": "cascade"})
+	t.ForeignKey("license_id", {"licenses": ["id"]})
 }

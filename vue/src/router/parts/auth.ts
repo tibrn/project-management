@@ -1,8 +1,9 @@
+import VueRouterMultiguard from "vue-router-multiguard";
 const Login = () =>
   import(/* webpackChunkName: "auth" */ "@/views/auth/Login.vue");
 const Register = () =>
   import(/* webpackChunkName: "auth" */ "@/views/auth/Register.vue");
-
+import guest from "@/middleware/modules/guest";
 export default [
   {
     path: "/login",
@@ -10,8 +11,8 @@ export default [
     component: Login,
     meta: {
       layout: "auth-layout"
-      //middleware: [guest]
-    }
+    },
+    beforeEnter: VueRouterMultiguard([guest])
   },
   {
     path: "/register",
@@ -19,7 +20,7 @@ export default [
     component: Register,
     meta: {
       layout: "auth-layout"
-      // middleware: [guest]
-    }
+    },
+    beforeEnter: VueRouterMultiguard([guest])
   }
 ];
