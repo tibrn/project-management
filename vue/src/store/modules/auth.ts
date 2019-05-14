@@ -3,7 +3,7 @@ import * as types from "@/store/mutation-types";
 import router from "@/router/";
 import { AuthData, AuthRefresh } from "@/types";
 import { Dispatch } from "vuex";
-
+import store from "@/store";
 //USED FOR DEBUGGIN
 const LOCATION = "store/modules/auth.ts";
 
@@ -17,6 +17,7 @@ interface AuthState {
 interface dispatch {
   dispatch: Dispatch;
 }
+
 //Model Auth State
 const authModel: AuthState = {
   // auth status
@@ -74,22 +75,24 @@ export const actions = {
   },
 
   // logout
-  async [types.LOGOUT]({ dispatch }: dispatch) {
+  async [types.LOGOUT]() {
     try {
-      await axios.get("/api/auth/logout");
+      let { status } = await axios.delete("/api/auth/logout");
+      if (status === 200) {
+        store.dispatch("RESET_STORE_DATA", {}, { root: true });
+      }
     } catch (e) {
       console.log({ location: LOCATION, error: e });
-    } finally {
-      dispatch("RESET_STORE_DATA", {}, { root: true });
     }
   },
 
   // used by page-visibility.js in /src/plugins/
   async [types.AUTH_REFRESH]({ dispatch }: dispatch) {
     try {
-      const { data } = await axios.get("/api/auth/refresh");
-      if (data.user_data) {
-        dispatch("INIT_STORE_DATA", data.user_data, { root: true });
+      const { status, data } = await axios.get("/api/auth/refresh");
+      console.log(status, data);
+      if (status === 200 && data.data) {
+        store.dispatch("INIT_STORE_DATA", data.data, { root: true });
       }
     } catch (e) {
       console.log({ location: LOCATION, error: e });

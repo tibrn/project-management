@@ -9,6 +9,7 @@ export interface AuthRefresh {
   email: string;
   settings: {
     avatar: string;
+    theme: string;
   };
   type: number;
 }

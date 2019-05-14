@@ -34,12 +34,12 @@ type User struct {
 	PasswordPlain        string       `json:"password,omitempty" form:"password" db:"-" `
 	PasswordConfirmation string       `json:"password_confirmation,omitempty"  form:"password_confirmation" db:"-"`
 	//Relationships
-	Settings *UserSetting `json:"settings,omitempty" has_one:"user_setting" db:"-"`
-	//Tasks     *Tasks       `json:"tasks,omitempty" many_to_many:"users_tasks" db:"-"`
-	//Projects  *Projects    `json:"projects,omitempty" many_to_many:"users_projects" db:"-"`
-	//Languages *Languages   `json:"languages,omitempty" many_to_many:"users_languages" db:"-"`
-	//Comments *Comments  `json:"comments,omitempty" has_many:"comments" db:"-" order_by:"created_at desc"`
-	//Accounts *Platforms `json:"accounts,omitempty" many_to_many:"users_platforms" db:"-"`
+	Settings  UserSetting `json:"settings,omitempty" has_one:"user_setting" db:"-"`
+	Tasks     Tasks       `json:"tasks,omitempty" many_to_many:"users_tasks" db:"-"`
+	Projects  Projects    `json:"projects,omitempty" many_to_many:"users_projects" db:"-"`
+	Languages Languages   `json:"languages,omitempty" many_to_many:"users_languages" db:"-"`
+	Comments  Comments    `json:"comments,omitempty" has_many:"comments" db:"-" order_by:"created_at desc"`
+	Accounts  Platforms   `json:"accounts,omitempty" many_to_many:"users_platforms" db:"-"`
 }
 
 //SafeUser is used to send user infromation
@@ -126,6 +126,8 @@ func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 	}
 	u.Password = string(ph)
 	u.Slug = u.unqiueSlug()
+
+	fmt.Println(u)
 	return tx.Eager().ValidateAndCreate(u)
 }
 
@@ -139,8 +141,7 @@ func (u *User) isClient() bool {
 
 func (u *User) unqiueSlug() nulls.String {
 	slug := slug.Make(u.Name)
-	nr, _ := DB.Where("slug LIKE %?%", slug).Count(u)
-
+	nr, _ := DB.Where("slug LIKE '%' || ? || '%' ", slug).Select("id").Count(u)
 	if nr > 0 {
 		slug += fmt.Sprintf("%d", nr+1)
 	}

@@ -3,8 +3,10 @@ package actions
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/buffalo/worker"
 	"github.com/gobuffalo/pop"
 	"github.com/myWebsite/golang/models"
 	"github.com/pkg/errors"
@@ -78,7 +80,7 @@ func (v UsersResource) Show(c buffalo.Context) error {
 func (v UsersResource) Create(c buffalo.Context) error {
 	// Allocate an empty User
 	user := &models.User{
-		Settings: &models.UserSetting{},
+		Settings: models.UserSetting{},
 	}
 	// Bind user to the html form elements
 	if err := c.Bind(user); err != nil {
@@ -94,12 +96,38 @@ func (v UsersResource) Create(c buffalo.Context) error {
 	verrs, err := user.Create(tx)
 
 	if err != nil {
+		fmt.Println(err)
 		return HTTP500(c)
 	}
 
 	if verrs.HasAny() {
 		return HTTP403(c, "user.created.fail", verrs.Errors)
 	}
+
+	verifyEmail := &models.UserVerify{
+		UserID: user.ID,
+		Type:   "activate-account",
+		Token:  GenerateToken(user.Slug.String + user.Email + fmt.Sprintf("%d", user.ID)),
+	}
+
+	verrs, err = tx.ValidateAndCreate(verifyEmail)
+
+	if err != nil {
+		fmt.Println(err)
+		return HTTP500(c)
+	}
+
+	if verrs.HasAny() {
+		return HTTP403(c, "user.created.fail", verrs.Errors)
+	}
+
+	app.Worker.PerformIn(worker.Job{
+		Queue:   "emails",
+		Handler: "send_email",
+		Args: worker.Args{
+			"user_id": user.ID,
+		},
+	}, 60*time.Second)
 
 	// If there are no errors set session user id
 	c.Session().Set("current_user_id", user.ID)
@@ -201,7 +229,6 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 		if uid := c.Session().Get("current_user_id"); uid != nil {
 			u := &models.User{}
 			tx := c.Value("tx").(*pop.Connection)
-
 			err := tx.Eager("Settings").Find(u, uid)
 			fmt.Println(u)
 			if err != nil {
@@ -217,8 +244,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 func Authorize(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		if uid := c.Session().Get("current_user_id"); uid == nil {
-			c.Flash().Add("danger", "You must be authorized to see that page")
-			return c.Redirect(302, "/")
+			return HTTP403(c, "")
 		}
 		return next(c)
 	}

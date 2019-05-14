@@ -13,7 +13,6 @@ type UserSetting struct {
 	UserID    int64     `json:"user_id" db:"user_id"`
 	Avatar    string    `json:"avatar,omitempty" db:"avatar"`
 	Theme     string    `json:"theme,omitempty" db:"theme" `
-	User      *User     `json:"user,omitempty" belongs_to:"user" db:"-"`
 	CreatedAt time.Time `json:"-" db:"created_at"`
 	UpdatedAt time.Time `json:"-" db:"updated_at"`
 }

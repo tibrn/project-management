@@ -27,7 +27,7 @@ const userModel: StateUser = {
   email: "",
   avatar: "",
   type: -1,
-  theme: "dark",
+  theme: localStorage.getItem("theme") || "dark",
 
   queueMessages: QueueMessages.getInstance(2100)
 };
@@ -60,8 +60,12 @@ export const mutations = {
       state.name = data.name;
       state.slug = data.slug;
       state.email = data.email;
-      state.avatar = data.settings.avatar;
       state.type = data.type;
+
+      state.avatar = (data.settings && data.settings.avatar) || "";
+      state.theme = (data.settings && data.settings.theme) || "";
+
+      localStorage.setItem("theme", state.theme);
     } catch (e) {
       console.log({ Location: LOCATION, Error: e });
     }
@@ -70,8 +74,19 @@ export const mutations = {
   RESET(state: StateUser) {
     try {
       Object.keys(state).forEach(key => {
-        state[key] = userModel[key];
+        if (key !== "theme") {
+          state[key] = userModel[key];
+        }
       });
+    } catch (e) {
+      console.log({ Location: LOCATION, Error: e });
+    }
+  },
+
+  [types.UPDATE_THEME](state: StateUser, theme: string) {
+    try {
+      state.theme = theme;
+      localStorage.setItem("theme", state.theme);
     } catch (e) {
       console.log({ Location: LOCATION, Error: e });
     }

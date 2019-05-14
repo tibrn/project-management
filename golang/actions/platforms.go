@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/envy"
+	"github.com/gobuffalo/events"
 	"github.com/gobuffalo/nulls"
 	"github.com/google/go-github/github"
 	"github.com/myWebsite/golang/models"
@@ -39,13 +41,17 @@ func (Platform) GithubCallback(c buffalo.Context) error {
 	client := github.NewClient(oauthConfig.Client(oauth2.NoContext, tkn))
 
 	userGithub, _, err := client.Users.Get(context.Background(), "")
-	fmt.Println(userGithub)
+
 	exist := &models.UserPlatform{}
-	err = models.DB.Where("username = ? OR id_on_platform = ? ", userGithub.GetName(), userGithub.GetID()).Select("id").First(exist)
+	err = models.DB.Where("username = ? OR id_on_platform = ? ", userGithub.GetLogin(), userGithub.GetID()).Select("id", "username").First(exist)
 
 	//S-a gasit un user
 	if err == nil {
-		return HTTP403(c, T.Translate(c, "user.platform.exist"))
+		c.Session().Set("exist", map[string]string{
+			"name":     exist.Username,
+			"platform": "Github",
+		})
+		return c.Redirect(http.StatusMovedPermanently, "/welcome")
 	}
 
 	limits, _, err := client.RateLimits(context.Background())
@@ -74,9 +80,30 @@ func (Platform) GithubCallback(c buffalo.Context) error {
 	}
 
 	if user.Settings.Avatar == "" {
-		user.Settings.Avatar = userGithub.GetAvatarURL()
-		fmt.Println(user.Settings)
-		models.DB.ValidateAndUpdate(user.Settings)
+		settings := user.Settings
+		settings.Avatar = userGithub.GetAvatarURL()
+		models.DB.ValidateAndUpdate(&settings)
 	}
+
+	e := events.Event{
+		Kind:    "platform:projects_github",
+		Payload: events.Payload{"user_id": user.ID},
+	}
+
+	if err := events.Emit(e); err != nil {
+		return HTTP500(c)
+	}
+	c.Session().Set("name", userPlatform.Username)
 	return c.Redirect(http.StatusMovedPermanently, "/welcome")
+}
+
+func (Platform) GithubRedirect(c buffalo.Context) error {
+
+	fmt.Println("CEVA")
+	URL := envy.Get("GITHUB_AUTHORIZE_URL", "https://github.com/login/oauth/authorize")
+	URL += "?client_id=" + envy.Get("GITHUB_CLIENT_ID", "")
+	URL += "&redirect_uri=" + envy.Get("APP_URL", "") + "/github/callback"
+
+	fmt.Println("GITHUB", URL)
+	return c.Redirect(http.StatusMovedPermanently, URL)
 }

@@ -1,15 +1,17 @@
 main{
     &.content {
-
+        width: 100%;
+        height: calc(100% - 55px);
+        // min-height: 100%;
         & .container {
-            height: 1000px;
+            // height: 1000px;
             background-color: #fff;
         }
         margin-top:55px;
     }
 }
-body {
-    background-color: $color_primary;
+body,html {
+    // background-color: $color_primary;
 }
 .about{
     height:50px;

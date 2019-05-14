@@ -18,8 +18,8 @@ type Task struct {
 	CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
-	Subtasks Tasks    `json:"subtask,omitempty" has_many:"tasks" order_by:"created_at desc" db:"-"`
-	Project  *Project `json:"project,omitempty" belongs_to:"projects" db:"-"`
+	Subtasks Tasks   `json:"subtask,omitempty" has_many:"tasks" order_by:"created_at desc" db:"-"`
+	Project  Project `json:"project,omitempty" belongs_to:"projects" db:"-"`
 }
 
 // String is not required by pop and may be deleted

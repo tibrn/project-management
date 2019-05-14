@@ -1,0 +1,8 @@
+create_table("user_verifies") {
+	t.Column("id", "integer", {primary: true})
+	t.Column("user_id", "integer", {})
+	t.Column("token","string",{null:false})
+	t.Column("type","string",{null:false})
+	t.Index("token", {"unique": true})
+	t.ForeignKey("user_id", {"users": ["id"]}, {"on_delete": "cascade"})
+}

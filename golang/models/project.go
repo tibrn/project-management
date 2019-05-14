@@ -24,7 +24,7 @@ type Project struct {
 	//Relationships
 	Tasks     Tasks     `json:"tasks,omitempty" many_to_many:"projects_tasks" db:"-"`
 	Languages Languages `json:"languages,omitempty" many_to_many:"projects_languages" db:"-"`
-	License   License   `json:"licenses,omitempty" belongs_to:"licenses" db:"-"`
+	License   *License  `json:"licenses,omitempty" belongs_to:"licenses" db:"-"`
 	Platform  Platform  `json:"platform,omitempty" belongs_to:"platforms" db:"-"`
 	Users     Users     `json:"users,omitempty" many_to_many:"users_projects" db:"-"`
 }

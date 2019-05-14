@@ -30,8 +30,10 @@ func (v TasksResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return HTTP500(c)
 	}
+
+	user := c.Value("current_user").(*models.User)
 
 	tasks := &models.Tasks{}
 
@@ -39,15 +41,15 @@ func (v TasksResource) List(c buffalo.Context) error {
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params())
 
+	q.Where("id IN (SELECT task_id FROM users_tasks WHERE user_id = ?)", user.ID)
 	// Retrieve all Tasks from the DB
 	if err := q.All(tasks); err != nil {
-		return errors.WithStack(err)
+		return HTTP500(c)
 	}
-
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, tasks))
+	return c.Render(200, r.JSON(tasks))
 }
 
 // Show gets the data for one Task. This function is mapped to
@@ -56,7 +58,7 @@ func (v TasksResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return HTTP500(c)
 	}
 
 	// Allocate an empty Task

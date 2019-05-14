@@ -1,0 +1,12 @@
+
+<div class="Welcome row">
+    <div class="col-12 my-auto">
+        <h3 class="Welcome__head " >
+            <%= if (name) { %>
+            Bine ai venit pe platforma <strong><%= name %></strong>
+            <% } else if(exist) { %>
+                Contul <%= exist["name"] %> de pe platforma <%= exist["platform"] %> este deja folosit!
+            <% }  %>
+        </h3>
+    </div>
+ </div>

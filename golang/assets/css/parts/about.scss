@@ -1,0 +1,19 @@
+.About{
+  margin-top: $header_height_mobile;
+  @include e("head"){
+    margin:25px auto;
+    text-align: center;
+    font-size:25px;
+  }
+
+  @include e("divider"){
+    height: 5px;
+    border-radius: 25%;
+    margin: 10px auto;
+    background: #E0E0E0;
+  }
+
+  @include e ("text"){
+    color:#000;
+  }
+}

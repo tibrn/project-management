@@ -1,10 +1,9 @@
 import Vue from "vue";
 import Meta from "vue-meta";
-import Router from "vue-router";
+import Router, { Route } from "vue-router";
 import { sync } from "vuex-router-sync";
 import routes from "./routes";
 import store from "@/store/";
-import { Route } from "vue-router";
 // init vue-meta, vue-router
 Vue.use(Meta);
 Vue.use(Router);
@@ -14,6 +13,8 @@ const router = new Router({
   base: process.env.BASE_URL,
   routes: routes
 });
+
+const NOT_INIT = ["login", "register"];
 // add router to store
 sync(store, router);
 router.beforeEach(async (to: Route, from: Route, next) => {

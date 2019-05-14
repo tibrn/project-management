@@ -58,7 +58,6 @@ export default new Vuex.Store({
           store.commit("IS_SERVE_MODE");
         }
       }
-
       // if user data is available, init state modules
       if (initData) {
         store.dispatch("INIT_STORE_DATA", initData);

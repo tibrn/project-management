@@ -6,6 +6,8 @@ export default function verify(
   from: Route,
   next: Next
 ): NavigationGuard {
+  console.log(to, from);
+  console.log(store.getters["auth/is_auth"]);
   if (!store.getters["auth/is_auth"]) {
     return next({ name: "login" });
   }

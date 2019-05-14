@@ -110,7 +110,7 @@ type queryLanguages struct {
 func Init(ID int64) error {
 	//TAKE USER_PLATFORM FROM DB
 	userPlatforms := []models.UserPlatform{}
-	err := models.DB.Where("user_id = ? AND COALESCE(last_updated_at,DATE '0001-01-01') < ?", ID, time.Now().Add(-24*time.Hour)).All(&userPlatforms)
+	err := models.DB.Where("user_id = ? AND COALESCE(last_updated_at,DATE '0001-01-01') < ? AND platform_id = 1", ID, time.Now().Add(-24*time.Hour)).All(&userPlatforms)
 	if err != nil {
 
 		fmt.Println("TAKE USER_PLATFORM", err)
@@ -203,7 +203,6 @@ func (d *Data) transfRepositories(repositories []Repository) error {
 	}
 
 	d.Projects = make([]Project, len(repositories))
-	fmt.Println("TRANSF REPOSITORIES")
 	for i := range repositories {
 		d.Projects[i].URL = repositories[i].URL
 		d.Projects[i].Name = repositories[i].Name
@@ -248,9 +247,7 @@ func (d *Data) updateProject(data *Project) {
 		query := tx
 
 		if license != nil {
-			fmt.Println(license)
-			project.License = *license
-			query = query.Eager("License")
+			project.LicenseID = nulls.NewInt64(license.ID)
 		}
 
 		var verrs *validate.Errors
@@ -298,11 +295,11 @@ func (d *Data) updateProject(data *Project) {
 				}
 			}
 
-			err = d.UpdateCreateUserLanguagesRelationships(languages, tx)
+			// err = d.UpdateCreateUserLanguagesRelationships(languages, tx)
 
-			if err != nil {
-				return err
-			}
+			// if err != nil {
+			//	return err
+			// }
 
 			err = d.UpdateCreateProjectLanguagesRelationships(project.ID, data.PrimaryLanguage, languages, tx)
 
@@ -317,47 +314,47 @@ func (d *Data) updateProject(data *Project) {
 	}
 }
 
-func (d *Data) UpdateCreateUserLanguagesRelationships(languages []RelationshipLanguage, tx *pop.Connection) error {
+// func (d *Data) UpdateCreateUserLanguagesRelationships(languages []RelationshipLanguage, tx *pop.Connection) error {
 
-	for i := range languages {
-		relation := &models.UserLanguage{}
-		err := tx.Where("language_id = ? AND user_id = ?", languages[i].Model.ID, d.User.UserID).First(relation)
+// 	for i := range languages {
+// 		relation := &models.UserLanguage{}
+// 		err := tx.Where("language_id = ? AND user_id = ?", languages[i].Model.ID, d.User.UserID).First(relation)
 
-		relation.Proficiency = languages[i].Usage / KB / 100
-		if err != nil {
-			if errors.Cause(err) == sql.ErrNoRows {
-				relation.UserID = d.User.UserID
-				relation.LanguageID = languages[i].Model.ID
+// 		relation.Proficiency = languages[i].Usage / KB / 100
+// 		if err != nil {
+// 			if errors.Cause(err) == sql.ErrNoRows {
+// 				relation.UserID = d.User.UserID
+// 				relation.LanguageID = languages[i].Model.ID
 
-				verrs, err := tx.ValidateAndCreate(relation)
+// 				verrs, err := tx.ValidateAndCreate(relation)
 
-				if err != nil {
-					fmt.Println("CREATE REALTIONSHIP USER LANGUAGE ", err)
-					return err
-				}
+// 				if err != nil {
+// 					fmt.Println("CREATE REALTIONSHIP USER LANGUAGE ", err)
+// 					return err
+// 				}
 
-				if verrs.HasAny() {
-					fmt.Println("CREATE REALTIONSHIP USER LANGUAGE ", verrs.Errors)
-					return errors.New("Couldn't create realtionship for language and user")
-				}
-			} else {
-				fmt.Println("REALTIONSHIP USER LANGUAGE", err)
-				return err
-			}
-		} else {
-			verrs, err := tx.ValidateAndUpdate(relation)
-			if verrs.HasAny() {
-				fmt.Println("UPDATE REALTIONSHIP USER LANGUAGE", verrs.Errors)
-			}
+// 				if verrs.HasAny() {
+// 					fmt.Println("CREATE REALTIONSHIP USER LANGUAGE ", verrs.Errors)
+// 					return errors.New("Couldn't create realtionship for language and user")
+// 				}
+// 			} else {
+// 				fmt.Println("REALTIONSHIP USER LANGUAGE", err)
+// 				return err
+// 			}
+// 		} else {
+// 			verrs, err := tx.ValidateAndUpdate(relation)
+// 			if verrs.HasAny() {
+// 				fmt.Println("UPDATE REALTIONSHIP USER LANGUAGE", verrs.Errors)
+// 			}
 
-			if err != nil {
-				fmt.Println("UPDATE REALTIONSHIP USER LANGUAGE", err)
-			}
-		}
+// 			if err != nil {
+// 				fmt.Println("UPDATE REALTIONSHIP USER LANGUAGE", err)
+// 			}
+// 		}
 
-	}
-	return nil
-}
+// 	}
+// 	return nil
+// }
 
 func (d *Data) UpdateCreateProjectLanguagesRelationships(ID uuid.UUID, primary string, languages []RelationshipLanguage, tx *pop.Connection) error {
 
@@ -366,6 +363,7 @@ func (d *Data) UpdateCreateProjectLanguagesRelationships(ID uuid.UUID, primary s
 		err := tx.Where("language_id = ? AND project_id = ?", languages[i].Model.ID, ID).First(relation)
 
 		relation.Usage = languages[i].Usage
+
 		relation.Primary = languages[i].Model.Name == primary
 		if err != nil {
 			if errors.Cause(err) == sql.ErrNoRows {
@@ -405,8 +403,7 @@ func (d *Data) UpdateCreateProjectLanguagesRelationships(ID uuid.UUID, primary s
 //FindCreateLicense ... Search for or license and retrive
 //or create license
 func (d *Data) FindCreateLicense(data *License) *models.License {
-
-	if data.Name == "" || data.Nickname == "" {
+	if data.Name == "" && data.Nickname == "" {
 		return nil
 	}
 	license := &models.License{}
@@ -459,111 +456,8 @@ func (d *Data) FindCreateLanguages(data []Language) []RelationshipLanguage {
 			if verrs.HasAny() {
 				fmt.Println("CREATE LANGUAGE", verrs.Errors)
 			}
-
 			languages[i].Usage = float64(data[i].Size)
 		}
 	}
 	return languages
 }
-
-// func githubProjects(c buffalo.Context) error {
-// 	ID := c.Session().Get("current_user_id").(int64)
-
-// 	// Get the DB connection from the context
-// 	userPlatform := &models.UserPlatform{}
-// 	err := models.DB.Where("user_id = ?", ID).First(userPlatform)
-// 	src := oauth2.StaticTokenSource(
-// 		&oauth2.Token{AccessToken: userPlatform.Token},
-// 	)
-// 	httpClient := oauth2.NewClient(context.Background(), src)
-
-// 	client := githubv4.NewClient(httpClient)
-// 	variables := map[string]interface{}{
-// 		"repositoriesCursor": (*githubv4.String)(nil),
-// 		"languagesCursor":    (*githubv4.String)(nil),
-// 	}
-// 	var q struct {
-// 		User struct {
-// 			ID           githubv4.ID
-// 			Repositories struct {
-// 				Nodes    []Repository
-// 				PageInfo struct {
-// 					EndCursor   githubv4.String
-// 					HasNextPage bool
-// 				}
-// 			} `graphql:"repositories(first: 50, after: $repositoriesCursor)"`
-// 		} `graphql:"user(login: \"BTiberiu99\")"`
-// 	}
-
-// 	// Get comments from all pages.
-// 	var allRepositories []Repository
-// 	for {
-// 		err := client.Query(context.Background(), &q, variables)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		allRepositories = append(allRepositories, q.User.Repositories.Nodes...)
-// 		if !q.User.Repositories.PageInfo.HasNextPage {
-// 			break
-// 		}
-// 		variables["repositoriesCursor"] = githubv4.NewString(q.User.Repositories.PageInfo.EndCursor)
-// 	}
-// 	reps := make([]RepositoryFinal, len(allRepositories))
-// 	for i := range allRepositories {
-// 		reps[i].Name = allRepositories[i].Name
-// 		reps[i].DatabaseID = allRepositories[i].DatabaseID
-// 		reps[i].URL = allRepositories[i].URL
-// 		reps[i].IsPrivate = allRepositories[i].IsPrivate
-// 		reps[i].PrimaryLanguage = allRepositories[i].PrimaryLanguage
-// 		reps[i].License = allRepositories[i].LicenseInfo
-// 		// //Useful data
-// 		// PrimaryLanguage Language
-// 		for {
-// 			err := client.Query(context.Background(), &q, variables)
-// 			if err != nil {
-// 				return err
-// 			}
-// 			reps[i].Languages = append(reps[i].Languages, allRepositories[i].Languages.Nodes...)
-// 			if !q.User.Repositories.PageInfo.HasNextPage {
-// 				break
-// 			}
-// 			variables["languagesCursor"] = githubv4.NewString(allRepositories[i].Languages.PageInfo.EndCursor)
-// 		}
-// 	}
-
-// 	err = client.Query(context.Background(), &q, variables)
-// 	if err != nil {
-// 		// Handle error.
-// 		fmt.Println(reps)
-// 	} else {
-// 		fmt.Println(allRepositories)
-// 	}
-
-// 	// fmt.Println(q)
-// 	return nil
-// }
-
-// func repositoriLanguages(user models.UserPlatform, reps []Repository) error {
-// 	// variables := map[string]interface{}{
-// 	// 	"languagesCursor": (*githubv4.String)(nil),
-// 	// }
-
-// 	// for i := range reps {
-// 	// 	for {
-// 	// 		err := client.Query(context.Background(), &q, variables)
-// 	// 		if err != nil {
-// 	// 			return err
-// 	// 		}
-// 	// 		allRepositories = append(allRepositories, q.User.Repositories.Nodes...)
-// 	// 		if !q.User.Repositories.PageInfo.HasNextPage {
-// 	// 			break
-// 	// 		}
-// 	// 		variables["repositoriesCursor"] = githubv4.NewString(q.User.Repositories.PageInfo.EndCursor)
-// 	// 	}
-// 	// }
-// 	return nil
-// }
-
-// func projectLicense(PlatformID string, ID int64) error {
-// 	return nil
-// }

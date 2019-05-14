@@ -42,6 +42,7 @@ CREATE TABLE public.comments (
     task_id integer NOT NULL,
     user_id integer NOT NULL,
     content character varying(255) DEFAULT ''::character varying NOT NULL,
+    rating integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -120,7 +121,7 @@ CREATE TABLE public.licenses (
     description character varying(255),
     nickname character varying(255) NOT NULL,
     key character varying(255) NOT NULL,
-    body character varying(255) NOT NULL,
+    body character varying(2550) NOT NULL,
     url character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
@@ -338,6 +339,44 @@ ALTER SEQUENCE public.user_settings_id_seq OWNED BY public.user_settings.id;
 
 
 --
+-- Name: user_verifies; Type: TABLE; Schema: public; Owner: tibi
+--
+
+CREATE TABLE public.user_verifies (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    token character varying(255),
+    type character varying(255),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.user_verifies OWNER TO tibi;
+
+--
+-- Name: user_verifies_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.user_verifies_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_verifies_id_seq OWNER TO tibi;
+
+--
+-- Name: user_verifies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.user_verifies_id_seq OWNED BY public.user_verifies.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: tibi
 --
 
@@ -377,44 +416,6 @@ ALTER TABLE public.users_id_seq OWNER TO tibi;
 --
 
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
-
-
---
--- Name: users_languages; Type: TABLE; Schema: public; Owner: tibi
---
-
-CREATE TABLE public.users_languages (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    language_id integer NOT NULL,
-    proficiency numeric NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE public.users_languages OWNER TO tibi;
-
---
--- Name: users_languages_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
---
-
-CREATE SEQUENCE public.users_languages_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.users_languages_id_seq OWNER TO tibi;
-
---
--- Name: users_languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
---
-
-ALTER SEQUENCE public.users_languages_id_seq OWNED BY public.users_languages.id;
 
 
 --
@@ -586,17 +587,17 @@ ALTER TABLE ONLY public.user_settings ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: user_verifies id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_verifies ALTER COLUMN id SET DEFAULT nextval('public.user_verifies_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: tibi
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
-
-
---
--- Name: users_languages id; Type: DEFAULT; Schema: public; Owner: tibi
---
-
-ALTER TABLE ONLY public.users_languages ALTER COLUMN id SET DEFAULT nextval('public.users_languages_id_seq'::regclass);
 
 
 --
@@ -685,11 +686,11 @@ ALTER TABLE ONLY public.user_settings
 
 
 --
--- Name: users_languages users_languages_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+-- Name: user_verifies user_verifies_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
 --
 
-ALTER TABLE ONLY public.users_languages
-    ADD CONSTRAINT users_languages_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.user_verifies
+    ADD CONSTRAINT user_verifies_pkey PRIMARY KEY (id);
 
 
 --
@@ -753,6 +754,13 @@ CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USIN
 
 
 --
+-- Name: user_verifies_token_idx; Type: INDEX; Schema: public; Owner: tibi
+--
+
+CREATE UNIQUE INDEX user_verifies_token_idx ON public.user_verifies USING btree (token);
+
+
+--
 -- Name: users_email_idx; Type: INDEX; Schema: public; Owner: tibi
 --
 
@@ -771,6 +779,13 @@ CREATE UNIQUE INDEX users_platforms_id_on_platform_idx ON public.users_platforms
 --
 
 CREATE UNIQUE INDEX users_platforms_url_idx ON public.users_platforms USING btree (url);
+
+
+--
+-- Name: users_remember_token_idx; Type: INDEX; Schema: public; Owner: tibi
+--
+
+CREATE UNIQUE INDEX users_remember_token_idx ON public.users USING btree (remember_token);
 
 
 --
@@ -853,19 +868,11 @@ ALTER TABLE ONLY public.user_settings
 
 
 --
--- Name: users_languages users_languages_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
+-- Name: user_verifies user_verifies_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
 --
 
-ALTER TABLE ONLY public.users_languages
-    ADD CONSTRAINT users_languages_language_id_fkey FOREIGN KEY (language_id) REFERENCES public.languages(id) ON DELETE CASCADE;
-
-
---
--- Name: users_languages users_languages_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
---
-
-ALTER TABLE ONLY public.users_languages
-    ADD CONSTRAINT users_languages_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.user_verifies
+    ADD CONSTRAINT user_verifies_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --

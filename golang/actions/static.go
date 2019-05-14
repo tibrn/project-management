@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
@@ -20,17 +21,16 @@ func ProjectsHandler(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	projects := &models.Projects{}
+	projects := []*models.Project{}
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params())
 
 	// authID := c.Value("current_user_id").(int64)
 
-	if err := q.All(projects); err != nil {
+	if err := q.All(&projects); err != nil {
 		return errors.WithStack(err)
 	}
-
 	c.Set("pagination", q.Paginator)
 	c.Set("projects", projects)
 
@@ -45,6 +45,18 @@ func HomeHandler(c buffalo.Context) error {
 
 // RedirectPlatformHandler is handler to projects page
 func RedirectPlatformHandler(c buffalo.Context) error {
+
+	exist := c.Session().Get("exist")
+
+	name := c.Session().Get("name")
+
+	if exist != nil {
+		c.Set("exist", exist)
+		c.Session().Delete("exist")
+	} else if name != nil {
+		c.Set("name", name)
+		c.Session().Delete("name")
+	}
 	return c.Render(200, r.HTML("platform/index.html"))
 }
 
@@ -70,7 +82,15 @@ func VueHandler(c buffalo.Context) error {
 
 //Test is used to make test to retrive data from platforms
 func Test(c buffalo.Context) error {
-	ID := c.Session().Get("current_user_id").(int64)
-	Init(ID)
+	// tx, ok := c.Value("tx").(*pop.Connection)
+	// if !ok {
+	// 	return errors.WithStack(errors.New("no transaction found"))
+	// }
+	test := &models.Languages{}
+	// tx.Where("user_id = ", 1).All(test)
+	err := models.DB.RawQuery("SELECT * FROM languages WHERE id IN (SELECT language_id FROM projects_languages WHERE project_id IN (SELECT project_id FROM users_projects WHERE user_id =1 ) )").All(test)
+
+	fmt.Println(err)
+	fmt.Println(test)
 	return nil
 }

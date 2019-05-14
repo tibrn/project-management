@@ -15,8 +15,8 @@ type Comment struct {
 	Content   string    `json:"content,omitempty" db:"content"`
 	CreatedAt time.Time `json:"created_at,omitempty" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" db:"updated_at"`
-	User      *User     `json:"user,omitempty" belongs_to:"users" db:"-"`
-	Task      *Task     `json:"task,omitempty" belongs_to:"tasks" db:"-"`
+	User      User      `json:"user,omitempty" belongs_to:"users" db:"-"`
+	Task      Task      `json:"task,omitempty" belongs_to:"tasks" db:"-"`
 }
 
 // String is not required by pop and may be deleted

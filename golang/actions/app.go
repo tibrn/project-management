@@ -1,8 +1,10 @@
 package actions
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/worker"
@@ -19,6 +21,7 @@ import (
 	gwa "github.com/gobuffalo/gocraft-work-adapter"
 	i18n "github.com/gobuffalo/mw-i18n"
 	"github.com/gobuffalo/packr/v2"
+	"github.com/myWebsite/golang/mailers"
 	"github.com/myWebsite/golang/models"
 )
 
@@ -70,6 +73,11 @@ func App() *buffalo.App {
 				MaxConcurrency: 25,
 			}),
 		})
+
+		initWorker(app)
+
+		initEvents()
+
 		if ENV == "development" {
 			// Log request parameters (filters apply).
 			app.Use(paramlogger.ParameterLogger)
@@ -110,12 +118,15 @@ func App() *buffalo.App {
 		app.GET("/login", VueHandler)
 
 		app.GET("/register", VueHandler)
+
+		app.GET("/activate/email", ActivateEmail)
 		//END Redirects to VUE
 
-		app.Middleware.Skip(Authorize, HomeHandler, AboutHandler, VueHandler)
+		app.Middleware.Skip(Authorize, HomeHandler, AboutHandler, VueHandler, ActivateEmail)
 		//PLATFORMS
 		platform := Platform{}
 
+		app.GET("/github", platform.GithubRedirect)
 		app.GET("/github/callback", platform.GithubCallback)
 
 		//END PLATFORMS
@@ -135,6 +146,7 @@ func App() *buffalo.App {
 		user = &UsersResource{&buffalo.BaseResource{}}
 		resourceUser := api.Resource("/user", user)
 		resourceUser.Middleware.Skip(Authorize, user.Create)
+
 		api.Resource("/project", ProjectsResource{})
 
 		api.Resource("/comment", CommentsResource{})
@@ -184,7 +196,15 @@ func HTTP500(c buffalo.Context) error {
 
 //HTTP403 returns and message with errors
 func HTTP403(c buffalo.Context, message string, errors ...interface{}) error {
-	return c.Render(http.StatusForbidden, r.JSON(MessageData{Message: message, MessageType: "error", Errors: errors}))
+	json := MessageData{
+		Errors: errors,
+	}
+
+	if message != "" {
+		json.MessageType = "error"
+		json.Message = message
+	}
+	return c.Render(http.StatusForbidden, r.JSON(json))
 }
 
 // Error is used to responde to API Error
@@ -206,6 +226,7 @@ type MessageData struct {
 	MessageType string      `json:"message-type,omitempty"`
 	Errors      interface{} `json:"errors,omitempty"`
 	Data        interface{} `json:"data,omitempty"`
+	Pagination  interface{} `json:"pagination,omitempty"`
 }
 
 func initWorker(app *buffalo.App) error {
@@ -216,11 +237,34 @@ func initWorker(app *buffalo.App) error {
 	}
 
 	w.Register("send_email", func(args worker.Args) error {
+		vars := map[string]interface{}{}
+
+		json.Unmarshal([]byte(args.String()), &vars)
+
+		if userID, ok := vars["user_id"]; ok {
+
+			verify := &models.UserVerify{}
+
+			user := &models.User{}
+
+			models.DB.Where("user_id = ? AND type = ? ", userID, "activate-account").First(verify)
+
+			models.DB.Select("email").Find(user, userID)
+
+			mailers.SendActivateAccounts(user.Email, verify.Token)
+		}
 		// do work to send an email
 		return nil
 	})
 
 	w.Register("projects_github", func(args worker.Args) error {
+		vars := map[string]interface{}{}
+
+		json.Unmarshal([]byte(args.String()), &vars)
+
+		if userID, ok := vars["user_id"]; ok {
+			Init(int64(userID.(float64)))
+		}
 		return nil
 	})
 
@@ -228,11 +272,34 @@ func initWorker(app *buffalo.App) error {
 		return nil
 	})
 
-	w.Register("update_projects_github", func(args worker.Args) error {
-		return nil
-	})
+	w.Register("update_projects", func(args worker.Args) error {
 
-	w.Register("update_projects_gitlab", func(args worker.Args) error {
+		users := []*models.User{}
+
+		models.DB.Select("id").Where("id IN (SELECT user_id FROM users_platforms WHERE COALESCE(last_updated_at,DATE '0001-01-01')  < ? )", time.Now().Add(-24*time.Hour)).All(users)
+
+		for i := range users {
+			app.Worker.PerformIn(worker.Job{
+				Queue:   "github",
+				Handler: "projects_github",
+				Args: worker.Args{
+					"user_id": users[i].ID,
+				},
+			}, time.Duration(i*5)*time.Second)
+
+			app.Worker.PerformIn(worker.Job{
+				Queue:   "gitlab",
+				Handler: "projects_gitlab",
+				Args: worker.Args{
+					"user_id": users[i].ID,
+				},
+			}, time.Duration(i*5)*time.Second)
+		}
+
+		app.Worker.PerformIn(worker.Job{
+			Queue:   "projects",
+			Handler: "update_projects",
+		}, 24*time.Hour)
 		return nil
 	})
 
@@ -242,21 +309,34 @@ func initWorker(app *buffalo.App) error {
 func initEvents() error {
 	_, err := events.Listen(func(e events.Event) {
 		switch e.Kind {
-		case "platform:take_projects":
-			// data, err := e.Payload.Pluck("data")
+		case "platform:projects_github":
+			data, err := e.Payload.Pluck("user_id")
 
-			// if err == nil {
-			// 	w.PerformIn(worker.Job{
-			// 		Queue:   "github",
-			// 		Handler: "projects_github",
-			// 		Args: worker.Args{
-			// 			"user_id": 123,
-			// 		},
-			// 	}, 5*time.Second)
-			// }
+			if err == nil {
+				app.Worker.PerformIn(worker.Job{
+					Queue:   "github",
+					Handler: "projects_github",
+					Args: worker.Args{
+						"user_id": data.(int64),
+					},
+				}, 5*time.Second)
+			}
+		//TO BE DONE
+		case "platform:projects_gitlab":
 
-		case "platform:update_projects":
+		case "buffalo:app:start":
+			// app.Worker.PerformIn(worker.Job{
+			// 	Queue:   "projects",
+			// 	Handler: "update_projects",
+			// }, 10*time.Second)
 
+			// app.Worker.PerformIn(worker.Job{
+			// 	Queue:   "emails",
+			// 	Handler: "send_email",
+			// 	Args: worker.Args{
+			// 		"user_id": 1,
+			// 	},
+			// }, 1*time.Second)
 		default:
 			// do nothing
 		}

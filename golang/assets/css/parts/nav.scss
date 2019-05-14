@@ -11,7 +11,7 @@
 }
 
 .Header {
-  width: 100%;
+  width:  100%;
   height: $header_height_mobile;
   left: 0;
   top: 0;
@@ -140,14 +140,14 @@
         }
 
         @include media-breakpoint-up(lg) {
-          width: 55px;
-          height: 55px;
+          width: 45px;
+          height: 45px;
           margin: 0 0 0 5px;
           display: inline-block;
 
           @at-root .Header.is_sticky #{&} {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
           }
         }
       }
@@ -180,7 +180,7 @@
   @include e("menu") {
     visibility: hidden;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out, visibility 0s;
+    transition: opacity 0.5s ease-in-out, visibility 0.1s;
 
     @include media-breakpoint-up(lg) {
       text-align: center;
@@ -192,7 +192,7 @@
 
     &.is_open #{&} {
       opacity: 1;
-      transition: visibility 0 linear 0.1s;
+      transition: visibility 0.1s linear 0.1s;
       visibility: visible;
     }
 

@@ -4,6 +4,6 @@ create_table("licenses") {
 	t.Column("description", "string",{null:true})
 	t.Column("nickname","string",{})
 	t.Column("key","string",{})
-	t.Column("body","string",{})
+	t.Column("body","string",{size : 2550})
 	t.Column("url","string",{})
 }

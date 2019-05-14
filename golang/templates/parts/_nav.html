@@ -12,7 +12,7 @@
                 <%= if (current_user) { %>
                     <a class="Header__user clearfix" href="<%= dashboardPath({rest : ""}) %>" title="Dashboard">
                         <%= if (current_user.Settings.Avatar) { %>
-                        <img data-src="<%= current_user.Settings.Avatar %>" alt="<%= current_user.Name %>">
+                        <img src="<%= current_user.Settings.Avatar %>" alt="<%= current_user.Name %>">
                         <% } %>
                         <span><%= current_user.Name %></span>
                     </a>
