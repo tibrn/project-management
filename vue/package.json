@@ -14,6 +14,7 @@
     "axios": "^0.18.0",
     "core-js": "^2.6.5",
     "js-cookie": "^2.2.0",
+    "material-icons-css": "^1.0.1",
     "roboto-fontface": "*",
     "vue": "^2.6.6",
     "vue-axios": "^2.1.4",

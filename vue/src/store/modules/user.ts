@@ -62,10 +62,13 @@ export const mutations = {
       state.email = data.email;
       state.type = data.type;
 
-      state.avatar = (data.settings && data.settings.avatar) || "";
-      state.theme = (data.settings && data.settings.theme) || "";
+      state.avatar =
+        (data.settings && data.settings.avatar) || userModel.avatar;
+      state.theme = (data.settings && data.settings.theme) || userModel.theme;
 
-      localStorage.setItem("theme", state.theme);
+      if (state.theme && state.theme !== "") {
+        localStorage.setItem("theme", state.theme);
+      }
     } catch (e) {
       console.log({ Location: LOCATION, Error: e });
     }

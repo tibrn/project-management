@@ -4,10 +4,12 @@
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
+import { Getter } from "vuex-class";
 @Component({
   name: "ProjectsIndex"
 })
 export default class extends Vue {
+  @Getter("/user/id") UserID!: string;
   isLoading = false;
   projects = [];
   created() {
@@ -20,7 +22,7 @@ export default class extends Vue {
   async getTasks() {
     this.isLoading = true;
     try {
-      let { data } = await this.axios.get("/api/project");
+      let { data } = await this.axios.get("/api/projects");
 
       console.log(data);
     } catch (e) {

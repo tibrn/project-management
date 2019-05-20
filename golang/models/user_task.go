@@ -6,11 +6,12 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
-	"github.com/gofrs/uuid"
 )
 
 type UserTask struct {
-	ID        uuid.UUID `json:"id" db:"id"`
+	ID        int64     `json:"id" db:"id"`
+	UserID    int64     `json:"user_id" db:"user_id"`
+	TaskID    int64     `json:"task_id" db:"task_id"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -46,4 +47,8 @@ func (u *UserTask) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) 
 // This method is not required and may be deleted.
 func (u *UserTask) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func (u UserTask) TableName() string {
+	return "users_tasks"
 }

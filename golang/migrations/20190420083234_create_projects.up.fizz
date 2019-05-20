@@ -1,7 +1,7 @@
 create_table("projects") {
 	t.Column("id", "uuid", {primary: true})
 	t.Column("platform_id","integer",{})
-	t.Column("id_on_platform","integer",{})
+	t.Column("id_on_platform","bigint",{})
 	t.Column("license_id","integer",{null : true})
 	t.Column("name", "string",{})
 	t.Column("description", "string",{null : true})

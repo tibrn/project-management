@@ -18,6 +18,7 @@ axios.interceptors.response.use(
         text: data.message,
         "message-type": data["message-type"]
       };
+
       QueueMessages.getInstance().sendMessage(message);
     }
 

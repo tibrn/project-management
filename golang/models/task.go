@@ -4,19 +4,22 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 )
 
 type Task struct {
-	ID          uint64    `json:"id" db:"id"`
-	TaskID      uint64    `json:"task_id" db:"task_id"`
-	ProjectID   uint64    `json:"project_id" db:"project_id"`
-	Name        string    `json:"name,omitempty" db:"name"`
-	Description string    `json:"description,omitempty" db:"description"`
-	Progress    float32   `json:"progress,omitempty" db:"progress"`
-	CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at,omitempty" db:"updated_at"`
+	ID          int64       `json:"id" db:"id"`
+	TaskID      nulls.Int64 `json:"task_id" db:"task_id"`
+	ProjectID   uuid.UUID   `json:"project_id" db:"project_id"`
+	Name        string      `json:"name,omitempty" db:"name"`
+	Description string      `json:"description,omitempty" db:"description"`
+	Progress    float64     `json:"progress,omitempty" db:"progress"`
+	Closed      bool        `json:"closed,omitempty" db:"closed"`
+	CreatedAt   time.Time   `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at,omitempty" db:"updated_at"`
 	//Relationships
 	Subtasks Tasks   `json:"subtask,omitempty" has_many:"tasks" order_by:"created_at desc" db:"-"`
 	Project  Project `json:"project,omitempty" belongs_to:"projects" db:"-"`

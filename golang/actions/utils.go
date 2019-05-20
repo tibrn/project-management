@@ -15,3 +15,12 @@ func GenerateToken(unique string) string {
 
 	return base64.StdEncoding.EncodeToString(hash)
 }
+
+func Contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}

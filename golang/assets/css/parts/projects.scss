@@ -1,3 +1,18 @@
 .Project{
-    margin-top : 80px ;
+    margin-top : 65px ;
+
+    @include e("card") {
+            p{
+                word-break: break-all;
+            }
+
+    }
+}
+
+.Pagination {
+    margin : 15px auto;
+    .pagination {
+        text-align: center;
+        justify-content: center;
+    }
 }

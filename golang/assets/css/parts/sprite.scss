@@ -1,0 +1,39 @@
+.Sprite {
+    height:700px;
+    #sprite {
+        width: 160px;
+        height: 230px;
+        background-image: url("/assets/images/sprite.png");
+
+        -webkit-animation: play .8s steps(10) infinite;
+           -moz-animation: play .8s steps(10) infinite;
+            -ms-animation: play .8s steps(10) infinite;
+             -o-animation: play .8s steps(10) infinite;
+                animation: play .8s steps(10) infinite;
+    }
+
+    @-webkit-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1600px; }
+    }
+
+    @-moz-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1600px; }
+    }
+
+    @-ms-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1600px; }
+    }
+
+    @-o-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1600x; }
+    }
+
+    @keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1600px; }
+    }
+}

@@ -1,6 +1,6 @@
 create_table("users_platforms") {
     t.Column("id","integer",{primary: true})
-    t.Column("id_on_platform","string",{null : false})
+    t.Column("id_on_platform","bigint",{null : false})
 	t.Column("user_id", "integer",{null : false})
     t.Column("platform_id","integer",{null : false})
     t.Column("username","string",{null:false})

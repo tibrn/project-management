@@ -4,5 +4,5 @@ create_table("languages") {
     t.Column("description", "string", {})
     t.Column("documentation", "string", {})
     t.Column("color", "string", {})
-    t.Index("name",{unqiue:true})
+    t.Index("name",{ "unqiue":true})
 }

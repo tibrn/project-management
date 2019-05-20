@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.7 (Ubuntu 10.7-0ubuntu0.18.04.1)
--- Dumped by pg_dump version 10.7 (Ubuntu 10.7-0ubuntu0.18.04.1)
+-- Dumped from database version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,6 +12,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -196,7 +197,7 @@ ALTER SEQUENCE public.platforms_id_seq OWNED BY public.platforms.id;
 CREATE TABLE public.projects (
     id uuid NOT NULL,
     platform_id integer NOT NULL,
-    id_on_platform integer NOT NULL,
+    id_on_platform bigint NOT NULL,
     license_id integer,
     name character varying(255) NOT NULL,
     description character varying(255),
@@ -424,7 +425,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 CREATE TABLE public.users_platforms (
     id integer NOT NULL,
-    id_on_platform character varying(255),
+    id_on_platform bigint,
     user_id integer,
     platform_id integer,
     username character varying(255),

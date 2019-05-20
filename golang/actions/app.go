@@ -122,7 +122,11 @@ func App() *buffalo.App {
 		app.GET("/activate/email", ActivateEmail)
 		//END Redirects to VUE
 
-		app.Middleware.Skip(Authorize, HomeHandler, AboutHandler, VueHandler, ActivateEmail)
+		app.GET("/sprite", Sprite)
+
+		app.GET("/canvas", Canvas)
+
+		app.Middleware.Skip(Authorize, HomeHandler, AboutHandler, ProjectsHandler, VueHandler, ActivateEmail, Sprite, Canvas)
 		//PLATFORMS
 		platform := Platform{}
 
@@ -147,13 +151,15 @@ func App() *buffalo.App {
 		resourceUser := api.Resource("/user", user)
 		resourceUser.Middleware.Skip(Authorize, user.Create)
 
-		api.Resource("/project", ProjectsResource{})
+		api.POST("/user/settings", UpdateSettings)
 
-		api.Resource("/comment", CommentsResource{})
+		api.Resource("/projects", ProjectsResource{})
 
-		api.Resource("/task", TasksResource{})
+		api.Resource("/comments", CommentsResource{})
 
-		api.Resource("/license", LicensesResource{})
+		api.Resource("/tasks", TasksResource{})
+
+		api.Resource("/licenses", LicensesResource{})
 		//api.Middleware.Skip(Authorize, UsersResource{}.Create)
 
 		//END API

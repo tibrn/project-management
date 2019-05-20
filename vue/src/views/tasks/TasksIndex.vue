@@ -20,7 +20,7 @@ export default class extends Vue {
   async getTasks() {
     this.isLoading = true;
     try {
-      let { data } = await this.axios.get("/api/task");
+      let { data } = await this.axios.get("/api/tasks");
 
       console.log(data);
     } catch (e) {

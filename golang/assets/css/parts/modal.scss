@@ -1,0 +1,8 @@
+.Modal {
+    .modal-content {
+        padding:10px;
+        @include e('text') {
+
+        }
+    }
+}

@@ -1,9 +1,16 @@
 {
   "application.css": "application.css",
   "application.js": "application.js",
+  "canvas.js": "canvas.js",
+  "sprite.js": "sprite.js",
   "vendors.css": "vendors.css",
   "vendors.js": "vendors.js",
   "vendors.scss": "674f50d287a8c48dc19ba404d20fe713.eot",
   "images/favicon.ico": "images/favicon.ico",
-  "images/logo.svg": "images/logo.svg"
+  "images/pikachu-map.jpg": "images/pikachu-map.jpg",
+  "images/pikachu-map2.jpg": "images/pikachu-map2.jpg",
+  "images/pikachu.jpg": "images/pikachu.jpg",
+  "images/logo.svg": "images/logo.svg",
+  "images/funny-car.png": "images/funny-car.png",
+  "images/sprite.png": "images/sprite.png"
 }

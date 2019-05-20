@@ -35,10 +35,10 @@ func (v ProjectsResource) List(c buffalo.Context) error {
 
 	projects := &models.Projects{}
 
+	user := c.Value("current_user").(*models.User)
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params())
-
+	q := tx.PaginateFromParams(c.Params()).Where("id IN (SELECT project_id FROM users_projects WHERE user_id = ? )", user.ID)
 	// Retrieve all Projects from the DB
 	if err := q.All(projects); err != nil {
 		return errors.WithStack(err)
@@ -47,7 +47,7 @@ func (v ProjectsResource) List(c buffalo.Context) error {
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, projects))
+	return c.Render(200, r.JSON(MessageData{Data: projects, Pagination: q.Paginator}))
 }
 
 // Show gets the data for one Project. This function is mapped to

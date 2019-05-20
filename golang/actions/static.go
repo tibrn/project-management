@@ -94,3 +94,15 @@ func Test(c buffalo.Context) error {
 	fmt.Println(test)
 	return nil
 }
+
+//Test is used to make test to retrive data from platforms
+func Sprite(c buffalo.Context) error {
+
+	return c.Render(200, r.HTML("test/sprite.html"))
+}
+
+//Test is used to make test to retrive data from platforms
+func Canvas(c buffalo.Context) error {
+
+	return c.Render(200, r.HTML("test/canvas.html"))
+}

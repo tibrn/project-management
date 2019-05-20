@@ -113,7 +113,6 @@ func (v UsersResource) Create(c buffalo.Context) error {
 	verrs, err = tx.ValidateAndCreate(verifyEmail)
 
 	if err != nil {
-		fmt.Println(err)
 		return HTTP500(c)
 	}
 
@@ -132,7 +131,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 	// If there are no errors set session user id
 	c.Session().Set("current_user_id", user.ID)
 
-	return c.Render(http.StatusOK, r.JSON(Success{Message: T.Translate(c, "user.created.success")}))
+	return c.Render(http.StatusOK, r.JSON(MessageData{Message: T.Translate(c, "user.created.success"), MessageType: "success", Data: user}))
 }
 
 // Edit renders a edit form for a User. This function is
@@ -220,6 +219,44 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 	c.Flash().Add("success", T.Translate(c, "user.destroyed.success"))
 	// Redirect to the users index page
 	return c.Render(200, r.Auto(c, user))
+}
+
+type ParamsSettings struct {
+	Theme string `json:"theme" form:"theme"`
+}
+
+// UpdateSettings updates settings of user
+func UpdateSettings(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	params := &ParamsSettings{}
+	if err := c.Bind(params); err != nil {
+		return HTTP403(c, "Theme is not accepted")
+	}
+
+	if !Contains([]string{"dark", "light"}, params.Theme) {
+		return HTTP403(c, "Theme is not accepted")
+	}
+
+	user := c.Value("current_user").(*models.User)
+	user.Settings.Theme = params.Theme
+
+	verrs, err := tx.ValidateAndCreate(&user.Settings)
+
+	if err != nil {
+		return HTTP500(c)
+	}
+
+	if verrs.HasAny() {
+		return HTTP403(c, "user.settings.fail", verrs.Errors)
+	}
+
+	// Redirect to the users index page
+	return c.Render(200, r.JSON(map[string]interface{}{"theme": user.Settings.Theme}))
 }
 
 // SetCurrentUser attempts to find a user based on the current_user_id
