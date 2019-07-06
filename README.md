@@ -1,4 +1,3 @@
-# barontiberiu.com
+# Work in porgress
 Personal Website 
 
-# Site scris in GoLang si Vue.js
