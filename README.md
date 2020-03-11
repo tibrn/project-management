@@ -1,3 +1,3 @@
 # Work in porgress
-Personal Website 
+Project management platform
 
