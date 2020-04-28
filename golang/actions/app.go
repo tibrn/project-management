@@ -1,20 +1,29 @@
 package actions
 
 import (
-	"os"
-	"strconv"
+	"fmt"
+	"management/enums"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
+	csrf "github.com/gobuffalo/mw-csrf"
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
+	tokenauth "github.com/gobuffalo/mw-tokenauth"
+	"github.com/gorilla/sessions"
+	"github.com/pkg/errors"
+	"github.com/rs/cors"
 	"github.com/unrolled/secure"
-	"gopkg.in/boj/redistore.v1"
+
+	"management/models"
 
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	i18n "github.com/gobuffalo/mw-i18n"
 	"github.com/gobuffalo/packr/v2"
-	"github.com/myWebsite/golang/models"
+
+	gwa "github.com/gobuffalo/gocraft-work-adapter"
+	redisqueue "github.com/gomodule/redigo/redis"
 )
 
 // ENV is used to help switch settings based on where the
@@ -22,6 +31,14 @@ import (
 var ENV = envy.Get("GO_ENV", "development")
 var app *buffalo.App
 var T *i18n.Translator
+
+const (
+	currentUserID = "current_user_id"
+)
+
+var (
+	errNoTransaction = errors.New("No transaction")
+)
 
 // App is where all routes and middleware for buffalo
 // should be defined. This is the nerve center of your
@@ -38,22 +55,56 @@ var T *i18n.Translator
 // declared after it to never be called.
 func App() *buffalo.App {
 	if app == nil {
-		redisStoreDB, _ := strconv.Atoi(os.Getenv("REDIS_DB_SESSION"))
-		store, _ := redistore.NewRediStore(redisStoreDB, "tcp", os.Getenv("REDIS_SERVER")+":"+os.Getenv("REDIS_PORT"), os.Getenv("REDIS_PASSWORD"), []byte("_baron_session"))
+
+		var (
+			SessionName = "_api_session"
+
+			store sessions.Store
+		)
+
+		var corsConfig []buffalo.PreWare
+
+		if !IsProduction() {
+			corsConfig = []buffalo.PreWare{
+				cors.AllowAll().Handler,
+			}
+		}
+		// Addr:     fmt.Sprintf("%s:%s", envy.Get("REDIS_SERVER", "localhost"), envy.Get("REDIS_PORT", "6309")),
+		// Password: envy.Get("REDIS_PASSWORD", ""),
 		app = buffalo.New(buffalo.Options{
 			Env:          ENV,
-			SessionName:  "_baron_session",
+			SessionName:  SessionName,
 			SessionStore: store,
+			PreWares:     corsConfig,
+			Worker: gwa.New(gwa.Options{
+				Pool: &redisqueue.Pool{
+					MaxActive: 5,
+					MaxIdle:   5,
+					Wait:      true,
+					Dial: func() (redisqueue.Conn, error) {
+						return redisqueue.Dial("tcp", fmt.Sprintf("%s:%s", envy.Get("REDIS_SERVER", "localhost"), envy.Get("REDIS_PORT", "6309")), redisqueue.DialPassword(envy.Get("REDIS_PASSWORD", "")))
+					},
+				},
+				Name:           "Worker",
+				MaxConcurrency: 25,
+			}),
 		})
-		// Automatically redirect to SSL
-		// app.Use(forceSSL())
 
-		// Log request parameters (filters apply).
-		app.Use(paramlogger.ParameterLogger)
+		if !IsProduction() {
+			app.Use(paramlogger.ParameterLogger)
+		}
+
+		// Automatically redirect to SSL
+		app.Use(forceSSL())
+
+		if !IsProduction() {
+			// Log request parameters (filters apply).
+			app.Use(paramlogger.ParameterLogger)
+		}
 
 		// Protect against CSRF attacks. https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
 		// Remove to disable this.
-		// app.Use(csrf.New)
+		app.Use(csrf.New)
 
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.Connection)
@@ -63,36 +114,49 @@ func App() *buffalo.App {
 		// Setup and use translations:
 		app.Use(translations())
 
-		//app.Use(SetCurrentUser)
-		//app.Use(Authorize)
+		api := app.Group("/api")
 
-		// app.GET("/signin", AuthNew)
-		app.POST("/login", AuthCreate)
-		app.DELETE("/logout", AuthDestroy)
-		//app.Middleware.Skip(Authorize, HomeHandler, ProjectsHandler, ProjectsHandler)
-		//app.GET("/signin", AuthNew)
-		//app.POST("/signin", AuthCreate)
-		//app.DELETE("/signout", AuthDestroy)
+		//Middlewares
+		TokenAuth := tokenauth.New(tokenauth.Options{
+			SignMethod: jwt.SigningMethodHS256,
+			GetKey: func(_ jwt.SigningMethod) (interface{}, error) {
+				return secretKey, nil
+			},
+		})
 
-		app.GET("/", HomeHandler)
+		// api.Use(SetCurrentUser)
+		// api.Use(Authorize)
+		api.Use(TokenAuth)
 
-		app.GET("/about", AboutHandler)
+		//Resources
+		userResource := UsersResource{&buffalo.BaseResource{}}
 
-		app.GET("/projects", ProjectsHandler)
+		// api.Middleware.Skip(Authorize, AuthCreate, userResource.Create)
+		api.Middleware.Skip(TokenAuth, AuthCreate, userResource.Create)
+
+		api.GET("/test", func(c buffalo.Context) error {
+			return c.Render(200, r.JSON(Response{
+				Message: "OK",
+				Type:    enums.Success,
+			}))
+		})
 
 		//PLATFORMS
 		platform := Platform{}
 
 		app.GET("/github/callback", platform.GithubCallback)
 
-		app.POST("/test/new", UsersResource{}.Create)
-		// app.GET("/github/callback/auth", platform.GithubCallbackAuth)
+		api.POST("/login", AuthCreate)
 
-		//END PLATFORMS
-		//API
-		api := app.Group("api")
+		api.DELETE("/logout", AuthDestroy)
 
-		api.Resource("user", UsersResource{})
+		api.GET("/refresh", AuthRefresh)
+
+		api.Resource("/users", userResource)
+
+		app.GET("/", HomeHandler)
+
+		app.ServeFiles("/", assetsBox) // serve files from the public directory
 
 		api.Resource("project", ProjectsResource{})
 
@@ -102,11 +166,10 @@ func App() *buffalo.App {
 
 		api.Resource("license", LicensesResource{})
 
-		//api.Middleware.Skip(Authorize, UsersResource{}.Create)
+		app.GET("/{path:.+}", VueHandler)
 
-		//END API
+		app.GET("/user/confirm", userResource.Confirm)
 
-		app.ServeFiles("/", assetsBox) // serve files from the public directory
 	}
 
 	return app
@@ -131,7 +194,11 @@ func translations() buffalo.MiddlewareFunc {
 // for more information: https://github.com/unrolled/secure/
 func forceSSL() buffalo.MiddlewareFunc {
 	return forcessl.Middleware(secure.Options{
-		SSLRedirect:     ENV == "production",
+		SSLRedirect:     IsProduction(),
 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 	})
+}
+
+func IsProduction() bool {
+	return ENV == "production"
 }

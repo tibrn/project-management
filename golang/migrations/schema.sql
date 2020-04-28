@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.7 (Ubuntu 10.7-0ubuntu0.18.04.1)
--- Dumped by pg_dump version 10.7 (Ubuntu 10.7-0ubuntu0.18.04.1)
+-- Dumped from database version 10.12 (Ubuntu 10.12-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.12 (Ubuntu 10.12-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,6 +12,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -273,6 +274,44 @@ ALTER SEQUENCE public.tasks_id_seq OWNED BY public.tasks.id;
 
 
 --
+-- Name: user_actions; Type: TABLE; Schema: public; Owner: tibi
+--
+
+CREATE TABLE public.user_actions (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    type character varying(255) NOT NULL,
+    token character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.user_actions OWNER TO tibi;
+
+--
+-- Name: user_actions_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.user_actions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_actions_id_seq OWNER TO tibi;
+
+--
+-- Name: user_actions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.user_actions_id_seq OWNED BY public.user_actions.id;
+
+
+--
 -- Name: user_settings; Type: TABLE; Schema: public; Owner: tibi
 --
 
@@ -426,6 +465,13 @@ ALTER TABLE ONLY public.tasks ALTER COLUMN id SET DEFAULT nextval('public.tasks_
 
 
 --
+-- Name: user_actions id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_actions ALTER COLUMN id SET DEFAULT nextval('public.user_actions_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: tibi
 --
 
@@ -481,6 +527,14 @@ ALTER TABLE ONLY public.tasks
 
 
 --
+-- Name: user_actions user_actions_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_actions
+    ADD CONSTRAINT user_actions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
 --
 
@@ -514,6 +568,20 @@ CREATE UNIQUE INDEX platforms_name_idx ON public.platforms USING btree (name);
 --
 
 CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USING btree (version);
+
+
+--
+-- Name: user_actions_token_idx; Type: INDEX; Schema: public; Owner: tibi
+--
+
+CREATE UNIQUE INDEX user_actions_token_idx ON public.user_actions USING btree (token);
+
+
+--
+-- Name: user_actions_user_id_type_idx; Type: INDEX; Schema: public; Owner: tibi
+--
+
+CREATE UNIQUE INDEX user_actions_user_id_type_idx ON public.user_actions USING btree (user_id, type);
 
 
 --
@@ -592,6 +660,14 @@ ALTER TABLE ONLY public.tasks
 
 ALTER TABLE ONLY public.tasks
     ADD CONSTRAINT tasks_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.tasks(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_actions user_actions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_actions
+    ADD CONSTRAINT user_actions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --

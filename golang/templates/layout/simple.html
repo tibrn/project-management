@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Baron Tiberiu</title>
+    <%= stylesheetTag("application.css") %>
+    <%= stylesheetTag("vendors.css") %>
+    <meta name="csrf-param" content="authenticity_token" />
+    <meta name="csrf-token" content="<%= authenticity_token %>" />
+    <link rel="icon" href="<%= assetPath("images/favicon.ico") %>">
+  </head>
+  <body>
+    <noscript>
+      <strong>
+        We're sorry but the website doesn't work properly without JavaScript enabled. Please enable it to continue.
+      </strong>
+    </noscript>
+
+    <%= javascriptTag("application.js") %>
+  </body>
+</html>

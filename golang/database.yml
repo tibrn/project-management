@@ -1,8 +1,8 @@
 development:
   dialect: postgres
-  database: website
+  database: management
   user: tibi
-  password: PSBBedut5QwrZCWU
+  password: test
   host: 127.0.0.1
   pool: 5
 

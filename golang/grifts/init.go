@@ -1,8 +1,9 @@
 package grifts
 
 import (
+	"management/actions"
+
 	"github.com/gobuffalo/buffalo"
-	"github.com/myWebsite/golang/actions"
 )
 
 func init() {

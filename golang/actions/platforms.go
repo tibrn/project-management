@@ -26,10 +26,11 @@ func (Platform) GithubCallback(c buffalo.Context) error {
 		req.Header.Add("Accept", "application/json")
 		req.Header.Add("Content-type", "application/json")
 		resp, err := client.Do(req)
-		defer resp.Body.Close()
+
 		if resp.StatusCode != http.StatusOK {
 			return nil
 		}
+		defer resp.Body.Close()
 		data := ResponseGithub{}
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		errParse := json.Unmarshal(bodyBytes, &data)
@@ -53,10 +54,3 @@ type ResponseGithub struct {
 	Scope       string `json:"scope"`
 	TokenType   string `json:"token_type"`
 }
-
-// func (Platform) GithubCallbackAuth(c buffalo.Context) error {
-// 	params := c.Params()
-// 	fmt.Println("AUTH")
-// 	fmt.Println(params)
-// 	return nil
-// }

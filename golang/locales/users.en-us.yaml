@@ -1,6 +1,26 @@
-- id: "user.created.success"
-  translation: "User was successfully created."
-- id: "user.updated.success"
-  translation: "User was successfully updated."
-- id: "user.destroyed.success"
-  translation: "User was successfully destroyed."
+# For more information on using i18n see: https://github.com/nicksnyder/go-i18n
+- id: login.success
+  translation: "Welcome back {{.name}}"
+- id: login.failed
+  translation: "Login failed"
+- id: user.create.success
+  translation: "User created with success"
+- id: user.create.failed
+  translation: "User couldn't be created"
+- id: user.update.success
+  translation: "User updated with success"
+- id: user.update.failed
+  translation: "User couldn't be updated"
+- id: user.delete.success
+  translation: "User deleted with success"
+- id: user.delete.failed
+  translation: "User delete failed"
+- id: user.not_found
+  translation: "User not found"
+- id: user.password_not_match
+  translation: "Password dosen't match"
+- id: user.confirm.failed
+  translation: "Email couldn't be confirmed"
+
+- id: errors.internal
+  translation: "Oops, something went wrong"

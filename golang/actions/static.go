@@ -1,9 +1,11 @@
 package actions
 
 import (
+	"management/models"
+	"net/http"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
-	"github.com/myWebsite/golang/models"
 	"github.com/pkg/errors"
 )
 
@@ -40,4 +42,11 @@ func ProjectsHandler(c buffalo.Context) error {
 // a home page.
 func HomeHandler(c buffalo.Context) error {
 	return c.Render(200, r.HTML("home/index.html"))
+}
+
+// HomeHandler is a default handler to serve up
+// a home page.
+
+func VueHandler(c buffalo.Context) error {
+	return c.Render(http.StatusOK, r.HTML("vue.plush.html"))
 }

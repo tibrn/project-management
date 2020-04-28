@@ -2,8 +2,7 @@ package main
 
 import (
 	"log"
-
-	"github.com/myWebsite/golang/actions"
+	"management/actions"
 )
 
 // main is the starting point for your Buffalo application.
