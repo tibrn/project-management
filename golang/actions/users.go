@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"management/enums"
 	"management/models"
 
 	"github.com/dgrijalva/jwt-go"
@@ -83,7 +84,7 @@ func (v UsersResource) Show(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return Error(c, http.StatusForbidden, "user.not_found")
+		return Error(c, http.StatusForbidden, enums.UserNotFound)
 	}
 
 	return c.Render(http.StatusOK, r.JSON(Response{Data: user}))
@@ -121,7 +122,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 
-		return Error(c, http.StatusForbidden, "user.create.failed", verrs)
+		return Error(c, http.StatusForbidden, enums.UserCreateFailed, verrs)
 
 	}
 
@@ -150,7 +151,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 		},
 	})
 
-	return Success(c, "user.create.success", AuthData{
+	return Success(c, enums.UserCreateSuccess, AuthData{
 		Token: tokenString,
 		User:  user,
 	})
@@ -175,7 +176,7 @@ func (v UsersResource) Update(c buffalo.Context) error {
 	user := &models.User{}
 
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return Error(c, http.StatusNotFound, "user.not_found")
+		return Error(c, http.StatusNotFound, enums.UserNotFound)
 	}
 
 	// Bind User to the html form elements
@@ -191,7 +192,7 @@ func (v UsersResource) Update(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 
-		return Error(c, http.StatusForbidden, "user.update.failed")
+		return Error(c, http.StatusForbidden, enums.UserUpdateFailed)
 	}
 
 	// and redirect to the users index page
@@ -212,15 +213,15 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return Error(c, http.StatusNotFound, "user.not_found")
+		return Error(c, http.StatusNotFound, enums.UserNotFound)
 	}
 
 	if err := tx.Destroy(user); err != nil {
-		return Error(c, http.StatusForbidden, "user.delete.failed")
+		return Error(c, http.StatusForbidden, enums.UserDestroyFailed)
 	}
 
 	// Redirect to the users index page
-	return Success(c, "user.delete.success")
+	return Success(c, enums.UserDestroySuccess)
 }
 
 // Confirm user email
@@ -236,7 +237,7 @@ func (v UsersResource) Confirm(c buffalo.Context) error {
 	token := c.Param("token")
 
 	if token == "" {
-		return Error(c, http.StatusForbidden, "user.confirm.no_token")
+		return Error(c, http.StatusForbidden, enums.UserConfirmNoToken)
 	}
 
 	// Allocate an empty User
@@ -244,17 +245,17 @@ func (v UsersResource) Confirm(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Where("token = ? ", token).Eager("User").First(action); err != nil {
-		return Error(c, http.StatusNotFound, "action.not_found")
+		return Error(c, http.StatusNotFound, enums.UserActionNotFound)
 	}
 
 	action.User.JoinedAt = nulls.NewTime(time.Now())
 
 	if err := tx.Destroy(action); err != nil {
-		return Error(c, http.StatusForbidden, "user.confirm.failed")
+		return Error(c, http.StatusForbidden, enums.UserConfirmFailed)
 	}
 
 	if err := tx.Update(action.User.JoinedAt); err != nil {
-		return Error(c, http.StatusForbidden, "user.confirm.failed")
+		return Error(c, http.StatusForbidden, enums.UserConfirmFailed)
 	}
 
 	// Redirect to the users index page

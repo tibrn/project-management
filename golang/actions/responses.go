@@ -8,7 +8,7 @@ import (
 )
 
 func InternalError(c buffalo.Context) error {
-	return Error(c, http.StatusInternalServerError, "errors.internal")
+	return Error(c, http.StatusInternalServerError, enums.ErrorsInternal)
 }
 
 func Error(c buffalo.Context, status int, tranlsate string, errs ...interface{}) error {
