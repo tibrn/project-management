@@ -2,6 +2,7 @@ package mailers
 
 import (
 	"errors"
+	"fmt"
 	"management/models"
 
 	"github.com/gobuffalo/buffalo/mail"
@@ -43,6 +44,6 @@ func SendWelcomeEmails(args worker.Args) error {
 	}
 
 	err = smtp.Send(m)
-
+	fmt.Println("mail sent")
 	return err
 }

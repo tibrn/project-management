@@ -26,17 +26,17 @@
 </template>
 
 <script lang="ts">
-import { createComponent, reactive, ref } from '@vue/composition-api'
-import Sidebar from  'src/components/Sidebar.vue'
+import { defineComponent, ref } from '@vue/composition-api'
+import Sidebar from 'src/components/Sidebar.vue'
 
-export default createComponent({
+export default defineComponent({
   name: 'AppLayout',
-  components:{
+  components: {
     Sidebar
   },
-  setup({ ctx }) {
+  setup(props, ctx) {
     return {
-      left:ref(true),
+      left: ref(true),
     }
   }
 })

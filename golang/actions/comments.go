@@ -104,7 +104,7 @@ func (v CommentsResource) Create(c buffalo.Context) error {
 	}
 
 	if verrs.HasAny() {
-		return Error(c, http.StatusForbidden, "comments.created.failed", verrs)
+		return Error(c, http.StatusForbidden, "comments.created.failed", verrs.Errors)
 	}
 
 	return Success(c, "comments.created.success", comment)
@@ -144,7 +144,7 @@ func (v CommentsResource) Update(c buffalo.Context) error {
 	}
 
 	if verrs.HasAny() {
-		return Error(c, http.StatusForbidden, "comments.updated.failed", verrs)
+		return Error(c, http.StatusForbidden, "comments.updated.failed", verrs.Errors)
 	}
 
 	return Success(c, "comments.updated.success", comment)

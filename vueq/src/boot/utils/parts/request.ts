@@ -1,28 +1,27 @@
-import { RequestUtil } from "src/types/boot/utils";
+import { RequestUtil } from "src/types/boot/utils"
 
 export default async function ({
   vm, loading, errors, call
-}:RequestUtil) {
+}: RequestUtil) {
   if (typeof call === 'undefined') {
-    return;
+    return
   }
-
 
   if (!loading) {
-    loading = 'isLoading';
+    loading = 'isLoading'
   }
   if (!errors) {
-    errors = 'formErrors';
+    errors = 'formErrors'
   }
 
   if (vm[loading]) {
-    return;
+    return
   }
 
-  vm[loading] = true;
+  vm[loading] = true
 
   try {
-    await call.apply(vm);
+    await call.apply(vm)
   } catch (e) {
     if (e.response && e.response.data && e.response.data.errors) {
       Object.assign(
@@ -30,8 +29,8 @@ export default async function ({
         ...Object.keys(e.response.data.errors).map(key => ({
           [key]: e.response.data.errors[key][0]
         }))
-      );
+      )
     }
   }
-  vm[loading] = false;
+  vm[loading] = false
 }

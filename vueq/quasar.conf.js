@@ -18,7 +18,8 @@ module.exports = configure(function (ctx) {
     boot: [
       'composition-api',
       'i18n',
-      'axios'
+      'axios',
+      'utils',
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -111,8 +112,14 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
-
+      vueRouterMode: 'history', // available values: 'hash', 'history'
+      env: ctx.dev
+        ? { // so on dev we'll have
+          API: JSON.stringify(`http://${ctx.mode.spa ? 'management.local' : '192.168.2.109'}:3000`),
+        }
+        : { // and on build (production):
+          API: JSON.stringify(''),
+        },
       // rtl: false, // https://quasar.dev/options/rtl-support
       // showProgress: false,
       // gzip: true,
@@ -143,7 +150,14 @@ module.exports = configure(function (ctx) {
     devServer: {
       https: false,
       port: 8080,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
+      proxy: {
+        // proxy all requests starting with /api to jsonplaceholder
+        api: {
+          target: 'http://management.local:3000',
+          changeOrigin: true,
+        },
+      },
     },
 
     // animations: 'all', // --- includes all animations

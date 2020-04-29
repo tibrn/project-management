@@ -1,9 +1,7 @@
 import { boot } from 'quasar/wrappers'
 import { ModuleStatic } from 'src/types/boot/static'
 
-import Vue from 'vue'
-
-const requireContext = (<any>require).context('src/boot/utils/parts', false, /.*\.ts$/)
+const requireContext = (require as any).context('src/boot/utils/parts', false, /.*\.ts$/)
 
 const utils = requireContext.keys()
   .map((file: string) => [file.replace(/(^.\/)|(\.ts$)/g, ''), requireContext(file)])
@@ -16,6 +14,6 @@ const utils = requireContext.keys()
 
 Object.freeze(utils)
 
-export default boot(({ Vue }) => {
+export const callback = boot(({ Vue }) => {
   Vue.prototype.$utils = utils
 })

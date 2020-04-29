@@ -99,6 +99,7 @@ AxiosInstance.interceptors.response.use(
   }
 )
 
+export const instance = AxiosInstance
 export default boot(({ Vue }) => {
   Vue.use(VueAxios, AxiosInstance)
 })

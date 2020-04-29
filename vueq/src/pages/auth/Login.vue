@@ -24,15 +24,16 @@
             </div>
           </q-card-section>
           <q-card-section>
-            <q-form class="q-px-sm q-pt-xl">
+            <q-form ref="elFormLogin" greedy class="q-px-sm q-pt-xl">
               <q-input
                 square
                 clearable
                 v-model="formLogin.email"
                 type="email"
                 label="Email"
-                :error="Boolean(formErrorsLogin.email).valueOf()"
-                :error-message="formErrorsLogin.email"
+                :error="Boolean(formLoginErrors.email).valueOf()"
+                :error-message="formLoginErrors.email"
+                :rules="formLoginRules.email"
               >
                 <template v-slot:prepend>
                   <q-icon name="email" />
@@ -44,8 +45,9 @@
                 v-model="formLogin.password"
                 type="password"
                 label="Password"
-                :error="Boolean(formErrorsLogin.password).valueOf()"
-                :error-message="formErrorsLogin.password"
+                :error="Boolean(formLoginErrors.password).valueOf()"
+                :error-message="formLoginErrors.password"
+                :rules="formLoginRules.password"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" />
@@ -116,7 +118,7 @@
             </div>
           </q-card-section>
           <q-card-section>
-            <q-form class="q-px-sm q-pt-xl q-pb-lg">
+            <q-form ref="elForm" greedy class="q-px-sm q-pt-xl q-pb-lg">
               <q-input
                 square
                 clearable
@@ -125,6 +127,7 @@
                 label="Email"
                 :error="Boolean(formErrors.email).valueOf()"
                 :error-message="formErrors.email"
+                :rules="formRules.email"
               >
                 <template v-slot:prepend>
                   <q-icon name="email" />
@@ -138,6 +141,7 @@
                 label="Name"
                 :error="Boolean(formErrors.name).valueOf()"
                 :error-message="formErrors.name"
+                :rules="formRules.name"
               >
                 <template v-slot:prepend>
                   <q-icon name="person" />
@@ -151,6 +155,7 @@
                 label="Surname"
                 :error="Boolean(formErrors.surname).valueOf()"
                 :error-message="formErrors.surname"
+                :rules="formRules.surname"
               >
                 <template v-slot:prepend>
                   <q-icon name="person" />
@@ -164,6 +169,7 @@
                 label="Password"
                 :error="Boolean(formErrors.password).valueOf()"
                 :error-message="formErrors.password"
+                :rules="formRules.password"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" />
@@ -177,6 +183,7 @@
                 label="Password Confirmation"
                 :error="Boolean(formErrors.password_confirmation).valueOf()"
                 :error-message="formErrors.password_confirmation"
+                :rules="formRules.password_confirmation(form,'password')"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" />
@@ -203,9 +210,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { createComponent, reactive } from '@vue/composition-api'
+
+import { defineComponent, reactive, toRefs, ref, Ref } from '@vue/composition-api'
 import { createNamespacedHelpers } from 'vuex'
+import { QForm } from 'quasar'
 const { mapMutations } = createNamespacedHelpers('user')
 const modelForm = {
   email: "",
@@ -219,27 +227,46 @@ const modelFormLogin = {
   password: ""
 }
 
+const validation = {
+  email: [(value: string) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'The email is invalid'],
+  name: [(value: string) => value.length > 3 || 'Name minimum length is 3'],
+  surname: [(value: string) => value.length > 3 || 'Surname minimum length is 3'],
+  password: [(value: string) => (/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{6,})/.test(value)) || 'The password is not strong enough'],
+  password_confirmation: (state: any, prop: string) => {
+    return [function(value: string) {
+      return value === state[prop] || 'Password does not match confirmation'
+    }]
+  }
+}
 
-
-export default createComponent({
-  name:'Login',
+export default defineComponent({
+  name: 'Login',
   setup(props, ctx) {
+    console.log(validation)
     const state = reactive({
       isLoading: false,
+
       form: { ...modelForm },
+      formRules: validation,
       formErrors: { ...modelForm },
       formLogin: { ...modelFormLogin },
       formLoginErrors: { ...modelFormLogin },
+      formLoginRules: { email: validation.email, password: validation.password }
     })
+
+    const elForm: Ref<null |QForm > = ref(null)
+    const elFormLogin: Ref<null |QForm > = ref(null)
 
     const { axios, $utils, $router } = ctx.root
 
     const { SET_USER } = mapMutations(['SET_USER'])
 
-    const register = async () => {
+    const register = (): void => {
       $utils.request({
-        vm: this,
+        vm: state,
         call: async () => {
+          if (!elForm.value || !await elForm.value.validate()) return
+
           const { data } = await axios.post("/api/users", state.form)
 
           if (typeof data !== "undefined") {
@@ -253,10 +280,12 @@ export default createComponent({
       })
     }
 
-    const login = () => {
+    const login = (): void => {
       $utils.request({
-        vm: this,
+        vm: state,
         call: async () => {
+          if (!elFormLogin.value || !await elFormLogin.value.validate()) return
+
           const { data } = await axios.post("/api/login", state.formLogin)
           if (typeof data !== "undefined") {
             SET_USER(data.data)
@@ -269,10 +298,13 @@ export default createComponent({
       })
     }
 
-    return $utils.keepReactive(state,{
-      register,
+    return {
       login,
-    })
+      register,
+      elForm,
+      elFormLogin,
+      ...toRefs(state),
+    }
   }
 
   // @Mutation("user/SET_USER") setUser?: (user: any) => {};

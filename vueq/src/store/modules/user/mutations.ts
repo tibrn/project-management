@@ -1,5 +1,6 @@
+
 import { TokenStorage } from 'src/services/token'
-import axios from 'src/boot/axios'
+import { instance as axios } from 'src/boot/axios'
 import { UserState } from '../../../types/store/modules/user'
 
 export function SET_NAME (state: UserState, name: string) {

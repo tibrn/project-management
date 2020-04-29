@@ -9,9 +9,9 @@ import (
 )
 
 type Comment struct {
-	ID        uint64    `json:"id" db:"id"`
-	UserID    uint64    `json:"user_id" db:"user_id"`
-	TaskID    uint64    `json:"task_id" db:"task_id"`
+	ID        int64     `json:"id" db:"id"`
+	UserID    int64     `json:"user_id" db:"user_id"`
+	TaskID    int64     `json:"task_id" db:"task_id"`
 	Content   string    `json:"content" db:"content"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`

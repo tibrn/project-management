@@ -11,7 +11,7 @@ import (
 
 type Project struct {
 	ID          uuid.UUID `json:"id" db:"id"`
-	PlatformID  uint64    `json:"platform_id" db:"platform_id"`
+	PlatformID  int64     `json:"platform_id" db:"platform_id"`
 	Name        string    `json:"name" db:"name"`
 	Description string    `json:"description" db:"description"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`

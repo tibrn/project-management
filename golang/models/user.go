@@ -161,14 +161,6 @@ func (u *User) create(tx *pop.Connection) error {
 		u.PasswordPlain = ""
 	}
 
-	if u.Name != "" && u.Surname != "" {
-		err := u.GenerateSlug()
-
-		if err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -188,6 +180,14 @@ func (u *User) BeforeCreate(tx *pop.Connection) error {
 		Type:  typeAction,
 		Token: token,
 	})
+
+	if u.Name != "" && u.Surname != "" {
+		err := u.GenerateSlug()
+
+		if err != nil {
+			return err
+		}
+	}
 
 	return u.create(tx)
 }

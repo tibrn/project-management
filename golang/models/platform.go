@@ -9,7 +9,7 @@ import (
 )
 
 type Platform struct {
-	ID        uint64    `json:"id" db:"id"`
+	ID        int64     `json:"id" db:"id"`
 	Name      string    `json:"name" db:"name"`
 	Home      string    `json:"home" db:"home"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`

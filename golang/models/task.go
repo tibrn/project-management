@@ -9,9 +9,9 @@ import (
 )
 
 type Task struct {
-	ID          uint64    `json:"id" db:"id"`
-	TaskID      uint64    `json:"task_id" db:"task_id"`
-	ProjectID   uint64    `json:"project_id" db:"project_id"`
+	ID          int64     `json:"id" db:"id"`
+	TaskID      int64     `json:"task_id" db:"task_id"`
+	ProjectID   int64     `json:"project_id" db:"project_id"`
 	Name        string    `json:"name" db:"name"`
 	Description string    `json:"description" db:"description"`
 	Progress    float32   `json:"progress" db:"progress"`

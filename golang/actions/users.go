@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -99,6 +100,13 @@ func (v UsersResource) New(c buffalo.Context) error {
 // Create adds a User to the DB. This function is mapped to the
 // path POST /users
 func (v UsersResource) Create(c buffalo.Context) error {
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errNoTransaction
+	}
+
 	// Allocate an empty User
 	user := &models.User{}
 
@@ -107,22 +115,17 @@ func (v UsersResource) Create(c buffalo.Context) error {
 		return InternalError(c)
 	}
 
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errNoTransaction
-	}
-
 	verrs, err := tx.Eager("Settings", "Actions").ValidateAndCreate(user)
 
 	if err != nil {
 
+		log.Print(err)
 		return InternalError(c)
 	}
 
 	if verrs.HasAny() {
 
-		return Error(c, http.StatusForbidden, enums.UserCreateFailed, verrs)
+		return Error(c, http.StatusForbidden, enums.UserCreateFailed, verrs.Errors)
 
 	}
 
@@ -192,7 +195,7 @@ func (v UsersResource) Update(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 
-		return Error(c, http.StatusForbidden, enums.UserUpdateFailed)
+		return Error(c, http.StatusForbidden, enums.UserUpdateFailed, verrs.Errors)
 	}
 
 	// and redirect to the users index page

@@ -9,8 +9,8 @@ import (
 )
 
 type UserSetting struct {
-	ID        uint64    `json:"id" db:"id"`
-	UserID    uint64    `json:"user_id" db:"user_id"`
+	ID        int64     `json:"id" db:"id"`
+	UserID    int64     `json:"user_id" db:"user_id"`
 	Avatar    string    `json:"avatar" db:"avatar"`
 	User      *User     `belongs_to:"user"`
 	CreatedAt time.Time `json:"-" db:"created_at"`

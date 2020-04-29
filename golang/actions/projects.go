@@ -105,7 +105,7 @@ func (v ProjectsResource) Create(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 
-		return Error(c, http.StatusForbidden, "project.create.failed", verrs)
+		return Error(c, http.StatusForbidden, "project.create.failed", verrs.Errors)
 	}
 
 	return Success(c, "project.create.success", project)
@@ -144,7 +144,7 @@ func (v ProjectsResource) Update(c buffalo.Context) error {
 	}
 
 	if verrs.HasAny() {
-		return Error(c, http.StatusForbidden, "project.update.failed", verrs)
+		return Error(c, http.StatusForbidden, "project.update.failed", verrs.Errors)
 	}
 
 	return Success(c, enums.ProjectUpdateSuccess, project)

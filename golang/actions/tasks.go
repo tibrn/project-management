@@ -108,7 +108,7 @@ func (v TasksResource) Create(c buffalo.Context) error {
 
 		// Render again the new.html template that the user can
 		// correct the input.
-		return Error(c, http.StatusForbidden, "task.create.failed", verrs)
+		return Error(c, http.StatusForbidden, "task.create.failed", verrs.Errors)
 	}
 
 	// and redirect to the tasks index page
@@ -153,7 +153,7 @@ func (v TasksResource) Update(c buffalo.Context) error {
 
 		// Render again the edit.html template that the user can
 		// correct the input.
-		return Error(c, http.StatusForbidden, "task.update.failed", verrs)
+		return Error(c, http.StatusForbidden, "task.update.failed", verrs.Errors)
 	}
 
 	return Success(c, enums.TaskUpdateSuccess, task)

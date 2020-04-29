@@ -333,12 +333,13 @@ ALTER TABLE public.user_settings OWNER TO tibi;
 CREATE TABLE public.users (
     id integer NOT NULL,
     name character varying(255),
+    surname character varying(255),
     password character varying(255),
     email character varying(255),
     remember_token character varying(255),
     slug character varying(255),
     type integer DEFAULT 0 NOT NULL,
-    joined_at timestamp without time zone NOT NULL,
+    joined_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );

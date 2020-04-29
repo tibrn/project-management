@@ -110,7 +110,7 @@ func (v LicensesResource) Create(c buffalo.Context) error {
 		// Render again the new.html template that the user can
 		// correct the input.
 
-		return Error(c, http.StatusForbidden, "license.create.failed", verrs)
+		return Error(c, http.StatusForbidden, "license.create.failed", verrs.Errors)
 	}
 
 	// and redirect to the licenses index page
@@ -153,7 +153,7 @@ func (v LicensesResource) Update(c buffalo.Context) error {
 
 		// Render again the edit.html template that the user can
 		// correct the input.
-		return Error(c, http.StatusForbidden, "license.update.failed", verrs)
+		return Error(c, http.StatusForbidden, "license.update.failed", verrs.Errors)
 	}
 
 	// and redirect to the licenses index page

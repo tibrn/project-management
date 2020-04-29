@@ -2,7 +2,6 @@ package actions
 
 import (
 	"fmt"
-	"management/enums"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
@@ -82,7 +81,7 @@ func App() *buffalo.App {
 					MaxIdle:   5,
 					Wait:      true,
 					Dial: func() (redisqueue.Conn, error) {
-						return redisqueue.Dial("tcp", fmt.Sprintf("%s:%s", envy.Get("REDIS_SERVER", "localhost"), envy.Get("REDIS_PORT", "6309")), redisqueue.DialPassword(envy.Get("REDIS_PASSWORD", "")))
+						return redisqueue.Dial("tcp", fmt.Sprintf("%s:%s", envy.Get("REDIS_SERVER", "localhost"), envy.Get("REDIS_PORT", "6379")), redisqueue.DialPassword(envy.Get("REDIS_PASSWORD", "")))
 					},
 				},
 				Name:           "Worker",
@@ -132,14 +131,8 @@ func App() *buffalo.App {
 		userResource := UsersResource{&buffalo.BaseResource{}}
 
 		// api.Middleware.Skip(Authorize, AuthCreate, userResource.Create)
-		api.Middleware.Skip(TokenAuth, AuthCreate, userResource.Create)
 
-		api.GET("/test", func(c buffalo.Context) error {
-			return c.Render(200, r.JSON(Response{
-				Message: "OK",
-				Type:    enums.Success,
-			}))
-		})
+		api.Middleware.Skip(TokenAuth, AuthCreate, userResource.Create)
 
 		//PLATFORMS
 		platform := Platform{}

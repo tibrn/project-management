@@ -1,5 +1,5 @@
-import { TokenStorage } from 'src/services/token';
-import { UserState } from '../../../types/store/modules/user';
+import { TokenStorage } from 'src/services/token'
+import { UserState } from '../../../types/store/modules/user'
 
 export default function (): UserState {
   return {
@@ -10,5 +10,5 @@ export default function (): UserState {
     joined_at: null,
     created_at: null,
     token: TokenStorage.getToken(),
-  };
+  }
 }

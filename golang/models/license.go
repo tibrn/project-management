@@ -9,7 +9,7 @@ import (
 )
 
 type License struct {
-	ID          uint64    `json:"id" db:"id"`
+	ID          int64     `json:"id" db:"id"`
 	ProjectID   string    `json:"project_id" db:"project_id"`
 	Name        string    `json:"name" db:"name"`
 	Description string    `json:"description" db:"description"`
