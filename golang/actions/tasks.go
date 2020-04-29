@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"management/enums"
 	"management/models"
 	"net/http"
 
@@ -58,7 +57,21 @@ func (v TasksResource) List(c buffalo.Context) error {
 // the path GET /tasks/{task_id}
 func (v TasksResource) Show(c buffalo.Context) error {
 
-	return c.Redirect(http.StatusMovedPermanently, "/")
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return InternalError(c)
+	}
+
+	// Allocate an empty User
+	task := &models.Task{}
+
+	// To find the User the parameter user_id is used.
+	if err := tx.Find(task, c.Param("task_id")); err != nil {
+		return Error(c, http.StatusForbidden, "task.not_found")
+	}
+
+	return c.Render(http.StatusOK, r.JSON(Response{Data: task}))
 }
 
 // New renders the form for creating a new Task.
@@ -75,10 +88,7 @@ func (v TasksResource) Create(c buffalo.Context) error {
 
 	// Bind task to the html form elements
 	if err := c.Bind(task); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "task.created.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "task.create.failed")
 	}
 
 	// Get the DB connection from the context
@@ -97,20 +107,11 @@ func (v TasksResource) Create(c buffalo.Context) error {
 
 		// Render again the new.html template that the user can
 		// correct the input.
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "task.created.failed"),
-			Type:    enums.Error,
-			Errors:  verrs,
-		}))
+		return Error(c, http.StatusForbidden, "task.create.failed", verrs)
 	}
 
 	// and redirect to the tasks index page
-
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "task.created.success"),
-		Type:    enums.Success,
-		Data:    task,
-	}))
+	return Success(c, "task.create.success", task)
 }
 
 // Edit renders a edit form for a Task. This function is
@@ -133,45 +134,28 @@ func (v TasksResource) Update(c buffalo.Context) error {
 	task := &models.Task{}
 
 	if err := tx.Find(task, c.Param("task_id")); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "task.edited.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusNotFound, "task.update.failed")
 	}
 
 	// Bind Task to the html form elements
 	if err := c.Bind(task); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "task.edited.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "task.update.failed")
 	}
 
 	verrs, err := tx.ValidateAndUpdate(task)
 
 	if err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "task.edited.failed"),
-			Type:    enums.Error,
-		}))
+		return InternalError(c)
 	}
 
 	if verrs.HasAny() {
 
 		// Render again the edit.html template that the user can
 		// correct the input.
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "task.edited.failed"),
-			Type:    enums.Error,
-			Errors:  verrs,
-		}))
+		return Error(c, http.StatusForbidden, "task.update.failed", verrs)
 	}
 
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "task.edited.success"),
-		Type:    enums.Success,
-		Data:    task,
-	}))
+	return Success(c, "task.update.success", task)
 }
 
 // Destroy deletes a Task from the DB. This function is mapped
@@ -188,18 +172,12 @@ func (v TasksResource) Destroy(c buffalo.Context) error {
 
 	// To find the Task the parameter task_id is used.
 	if err := tx.Find(task, c.Param("task_id")); err != nil {
-		return c.Error(404, err)
+		return Error(c, http.StatusNotFound, "task.destroy.failed")
 	}
 
 	if err := tx.Destroy(task); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "task.destroyed.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "task.destroy.failed")
 	}
 
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "task.destroyed.success"),
-		Type:    enums.Success,
-	}))
+	return Success(c, "task.destroyed.success")
 }

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"management/models"
+	"net/http"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
@@ -31,7 +32,7 @@ func (v LicensesResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return InternalError(c)
 	}
 
 	licenses := &models.Licenses{}
@@ -45,10 +46,10 @@ func (v LicensesResource) List(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-	// Add the paginator to the context so it can be used in the template.
-	c.Set("pagination", q.Paginator)
-
-	return c.Render(200, r.JSON(licenses))
+	return c.Render(http.StatusOK, r.JSON(Response{
+		Data:       licenses,
+		Pagination: q.Paginator,
+	}))
 }
 
 // Show gets the data for one License. This function is mapped to
@@ -57,7 +58,7 @@ func (v LicensesResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return InternalError(c)
 	}
 
 	// Allocate an empty License
@@ -65,73 +66,60 @@ func (v LicensesResource) Show(c buffalo.Context) error {
 
 	// To find the License the parameter license_id is used.
 	if err := tx.Find(license, c.Param("license_id")); err != nil {
-		return c.Error(404, err)
+		return Error(c, http.StatusNotFound, "license.not_found")
 	}
 
-	return c.Render(200, r.JSON(license))
+	return c.Render(http.StatusOK, r.JSON(Response{
+		Data: license,
+	}))
 }
 
 // New renders the form for creating a new License.
 // This function is mapped to the path GET /licenses/new
 func (v LicensesResource) New(c buffalo.Context) error {
-	return c.Render(200, r.JSON(&models.License{}))
+	return c.Error(http.StatusNotFound, errors.New("Not implemented"))
 }
 
 // Create adds a License to the DB. This function is mapped to the
 // path POST /licenses
 func (v LicensesResource) Create(c buffalo.Context) error {
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return InternalError(c)
+	}
+
 	// Allocate an empty License
 	license := &models.License{}
 
 	// Bind license to the html form elements
 	if err := c.Bind(license); err != nil {
-		return errors.WithStack(err)
-	}
-
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return Error(c, http.StatusForbidden, "license.create.failed")
 	}
 
 	// Validate the data from the html form
 	verrs, err := tx.ValidateAndCreate(license)
 	if err != nil {
-		return errors.WithStack(err)
+		return InternalError(c)
 	}
 
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
 
 		// Render again the new.html template that the user can
 		// correct the input.
-		return c.Render(422, r.JSON(license))
+
+		return Error(c, http.StatusForbidden, "license.create.failed", verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", T.Translate(c, "license.created.success"))
 	// and redirect to the licenses index page
-	return c.Render(201, r.JSON(license))
+	return Success(c, "license.created.success", license)
 }
 
 // Edit renders a edit form for a License. This function is
 // mapped to the path GET /licenses/{license_id}/edit
 func (v LicensesResource) Edit(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	// Allocate an empty License
-	license := &models.License{}
-
-	if err := tx.Find(license, c.Param("license_id")); err != nil {
-		return c.Error(404, err)
-	}
-
-	return c.Render(200, r.JSON(license))
+	return c.Error(http.StatusNotFound, errors.New("Not implemented"))
 }
 
 // Update changes a License in the DB. This function is mapped to
@@ -140,39 +128,35 @@ func (v LicensesResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return InternalError(c)
 	}
 
 	// Allocate an empty License
 	license := &models.License{}
 
 	if err := tx.Find(license, c.Param("license_id")); err != nil {
-		return c.Error(404, err)
+		return Error(c, http.StatusNotFound, "license.update.failed")
 	}
 
 	// Bind License to the html form elements
 	if err := c.Bind(license); err != nil {
-		return errors.WithStack(err)
+		return Error(c, http.StatusForbidden, "license.update.failed")
 	}
 
 	verrs, err := tx.ValidateAndUpdate(license)
 	if err != nil {
-		return errors.WithStack(err)
+		return InternalError(c)
 	}
 
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
 
 		// Render again the edit.html template that the user can
 		// correct the input.
-		return c.Render(422, r.JSON(license))
+		return Error(c, http.StatusForbidden, "license.update.failed", verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", T.Translate(c, "license.updated.success"))
 	// and redirect to the licenses index page
-	return c.Render(200, r.JSON(license))
+	return Success(c, "license.updated.success", license)
 }
 
 // Destroy deletes a License from the DB. This function is mapped
@@ -189,15 +173,13 @@ func (v LicensesResource) Destroy(c buffalo.Context) error {
 
 	// To find the License the parameter license_id is used.
 	if err := tx.Find(license, c.Param("license_id")); err != nil {
-		return c.Error(404, err)
+		return Error(c, http.StatusNotFound, "license.destroy.failed")
 	}
 
 	if err := tx.Destroy(license); err != nil {
-		return errors.WithStack(err)
+		return Error(c, http.StatusForbidden, "license.destroy.failed")
 	}
 
-	// If there are no errors set a flash message
-	c.Flash().Add("success", T.Translate(c, "license.destroyed.success"))
 	// Redirect to the licenses index page
-	return c.Render(200, r.JSON(license))
+	return Success(c, "license.destroy.success")
 }

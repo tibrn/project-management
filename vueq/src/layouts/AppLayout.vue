@@ -15,7 +15,7 @@
     </q-header>
 
     <q-drawer v-model="left" side="left" overlay elevated>
-      <!-- drawer content -->
+      <Sidebar />
     </q-drawer>
 
     <q-page-container>
@@ -27,12 +27,13 @@
 
 <script lang="ts">
 import { createComponent, reactive, ref } from '@vue/composition-api'
-// import { createNamespacedHelpers } from 'vuex'
-// const { mapState } = createNamespacedHelpers('app')
+import Sidebar from  'src/components/Sidebar.vue'
 
 export default createComponent({
   name: 'AppLayout',
-
+  components:{
+    Sidebar
+  },
   setup({ ctx }) {
     return {
       left:ref(true),

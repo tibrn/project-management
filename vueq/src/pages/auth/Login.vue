@@ -219,22 +219,8 @@ const modelFormLogin = {
   password: ""
 }
 
-function keepReactive (arg: any, target :object):object{
 
 
-  Object.keys(arg).map(key => {
-    Object.defineProperty(target, key, {
-      get() {
-        return arg[key]
-      },
-      set(val: any) {
-        arg[key] = val
-      }
-    })
-  })
-
-  return target
-}
 export default createComponent({
   name:'Login',
   setup(props, ctx) {
@@ -283,7 +269,7 @@ export default createComponent({
       })
     }
 
-    return keepReactive(state,{
+    return $utils.keepReactive(state,{
       register,
       login,
     })

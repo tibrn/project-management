@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"management/enums"
 	"management/models"
 
 	"github.com/dgrijalva/jwt-go"
@@ -84,10 +83,7 @@ func (v UsersResource) Show(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "user.not_found"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "user.not_found")
 	}
 
 	return c.Render(http.StatusOK, r.JSON(Response{Data: user}))
@@ -125,23 +121,9 @@ func (v UsersResource) Create(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "user.create.failed"),
-			Type:    enums.Error,
-			Errors:  verrs.Errors,
-		}))
+		return Error(c, http.StatusForbidden, "user.create.failed", verrs)
 
 	}
-
-	//Send confirm email
-	App().Worker.Perform(worker.Job{
-		Queue:   "default",
-		Handler: "send_email",
-		Args: worker.Args{
-			"user_id":    user.ID,
-			"type_email": "welcome",
-		},
-	})
 
 	//Create jwt token
 	claims := jwt.StandardClaims{
@@ -158,22 +140,20 @@ func (v UsersResource) Create(c buffalo.Context) error {
 
 	//End create jwt token
 
-	//Error handling
-	if err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "user.create.failed"),
-			Type:    enums.Error,
-		}))
-	}
-
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "user.create.success"),
-		Type:    enums.Success,
-		Data: AuthData{
-			Token: tokenString,
-			User:  user,
+	//Send confirm email
+	App().Worker.Perform(worker.Job{
+		Queue:   "default",
+		Handler: "send_email",
+		Args: worker.Args{
+			"user_id":    user.ID,
+			"type_email": "welcome",
 		},
-	}))
+	})
+
+	return Success(c, "user.create.success", AuthData{
+		Token: tokenString,
+		User:  user,
+	})
 }
 
 // Edit renders a edit form for a User. This function is
@@ -195,10 +175,7 @@ func (v UsersResource) Update(c buffalo.Context) error {
 	user := &models.User{}
 
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "user.not_found"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusNotFound, "user.not_found")
 	}
 
 	// Bind User to the html form elements
@@ -214,11 +191,7 @@ func (v UsersResource) Update(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "user.update.failed"),
-			Type:    enums.Error,
-			Errors:  verrs.Errors,
-		}))
+		return Error(c, http.StatusForbidden, "user.update.failed")
 	}
 
 	// and redirect to the users index page
@@ -239,24 +212,15 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "user.not_found"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusNotFound, "user.not_found")
 	}
 
 	if err := tx.Destroy(user); err != nil {
-		return c.Render(http.StatusOK, r.JSON(Response{
-			Message: T.Translate(c, "user.delete.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "user.delete.failed")
 	}
 
 	// Redirect to the users index page
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "user.delete.success"),
-		Type:    enums.Success,
-	}))
+	return Success(c, "user.delete.success")
 }
 
 // Confirm user email
@@ -272,10 +236,7 @@ func (v UsersResource) Confirm(c buffalo.Context) error {
 	token := c.Param("token")
 
 	if token == "" {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "user.confirm.no_token"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "user.confirm.no_token")
 	}
 
 	// Allocate an empty User
@@ -283,26 +244,17 @@ func (v UsersResource) Confirm(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Where("token = ? ", token).Eager("User").First(action); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "user.not_found"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusNotFound, "action.not_found")
 	}
 
 	action.User.JoinedAt = nulls.NewTime(time.Now())
 
 	if err := tx.Destroy(action); err != nil {
-		return c.Render(http.StatusOK, r.JSON(Response{
-			Message: T.Translate(c, "user.confirm.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "user.confirm.failed")
 	}
 
 	if err := tx.Update(action.User.JoinedAt); err != nil {
-		return c.Render(http.StatusOK, r.JSON(Response{
-			Message: T.Translate(c, "user.confirm.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "user.confirm.failed")
 	}
 
 	// Redirect to the users index page

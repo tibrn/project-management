@@ -8,8 +8,33 @@ import (
 )
 
 func InternalError(c buffalo.Context) error {
-	return c.Render(http.StatusInternalServerError, r.JSON(Response{
-		Message: T.Translate(c, "errors.internal"),
+	return Error(c, http.StatusInternalServerError, "errors.internal")
+}
+
+func Error(c buffalo.Context, status int, tranlsate string, errs ...interface{}) error {
+	var d interface{}
+
+	if len(errs) > 0 {
+		d = errs[0]
+	}
+	return c.Render(status, r.JSON(Response{
+		Message: T.Translate(c, tranlsate),
 		Type:    enums.Error,
+		Errors:  d,
+	}))
+}
+
+func Success(c buffalo.Context, tranlsate string, data ...interface{}) error {
+
+	var d interface{}
+
+	if len(data) > 0 {
+		d = data[0]
+	}
+
+	return c.Render(http.StatusOK, r.JSON(Response{
+		Message: T.Translate(c, tranlsate),
+		Type:    enums.Success,
+		Data:    d,
 	}))
 }

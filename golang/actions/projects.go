@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"management/enums"
 	"management/models"
 	"net/http"
 
@@ -57,7 +56,21 @@ func (v ProjectsResource) List(c buffalo.Context) error {
 // the path GET /projects/{project_id}
 func (v ProjectsResource) Show(c buffalo.Context) error {
 
-	return c.Render(http.StatusNotFound, nil)
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return InternalError(c)
+	}
+
+	// Allocate an empty User
+	project := &models.Project{}
+
+	// To find the User the parameter user_id is used.
+	if err := tx.Find(project, c.Param("project_id")); err != nil {
+		return Error(c, http.StatusForbidden, "project.not_found")
+	}
+
+	return c.Render(http.StatusOK, r.JSON(Response{Data: project}))
 }
 
 // New renders the form for creating a new Project.
@@ -74,10 +87,7 @@ func (v ProjectsResource) Create(c buffalo.Context) error {
 
 	// Bind project to the html form elements
 	if err := c.Bind(project); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "project.created.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "project.create.failed")
 	}
 
 	// Get the DB connection from the context
@@ -94,18 +104,10 @@ func (v ProjectsResource) Create(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "project.created.failed"),
-			Type:    enums.Error,
-			Errors:  verrs,
-		}))
+		return Error(c, http.StatusForbidden, "project.create.failed", verrs)
 	}
 
-	return c.Render(http.StatusForbidden, r.JSON(Response{
-		Message: T.Translate(c, "project.created.success"),
-		Type:    enums.Success,
-		Data:    project,
-	}))
+	return Success(c, "project.create.success", project)
 }
 
 // Edit renders a edit form for a Project. This function is
@@ -127,18 +129,12 @@ func (v ProjectsResource) Update(c buffalo.Context) error {
 	project := &models.Project{}
 
 	if err := tx.Find(project, c.Param("project_id")); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "project.update.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusNotFound, "project.update.failed")
 	}
 
 	// Bind Project to the html form elements
 	if err := c.Bind(project); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "project.update.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "project.update.failed")
 	}
 
 	verrs, err := tx.ValidateAndUpdate(project)
@@ -147,18 +143,10 @@ func (v ProjectsResource) Update(c buffalo.Context) error {
 	}
 
 	if verrs.HasAny() {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "project.update.failed"),
-			Type:    enums.Error,
-			Errors:  verrs,
-		}))
+		return Error(c, http.StatusForbidden, "project.update.failed", verrs)
 	}
 
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "project.update.success"),
-		Type:    enums.Success,
-		Data:    project,
-	}))
+	return Success(c, "project.update.success", project)
 }
 
 // Destroy deletes a Project from the DB. This function is mapped
@@ -175,21 +163,12 @@ func (v ProjectsResource) Destroy(c buffalo.Context) error {
 
 	// To find the Project the parameter project_id is used.
 	if err := tx.Find(project, c.Param("project_id")); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "project.destroy.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusNotFound, "project.destroyed.failed")
 	}
 
 	if err := tx.Destroy(project); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "project.destroy.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "project.destroyed.failed")
 	}
 
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "project.destroy.success"),
-		Type:    enums.Success,
-	}))
+	return Success(c, "project.destroy.success")
 }

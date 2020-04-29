@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"management/enums"
 	"management/models"
 	"net/http"
 
@@ -56,8 +55,21 @@ func (v CommentsResource) List(c buffalo.Context) error {
 // Show gets the data for one Comment. This function is mapped to
 // the path GET /comments/{comment_id}
 func (v CommentsResource) Show(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return InternalError(c)
+	}
 
-	return c.Error(http.StatusNotFound, errors.New("Not Implemented"))
+	// Allocate an empty User
+	comment := &models.Comment{}
+
+	// To find the User the parameter user_id is used.
+	if err := tx.Find(comment, c.Param("comment_id")); err != nil {
+		return Error(c, http.StatusForbidden, "comment.not_found")
+	}
+
+	return c.Render(http.StatusOK, r.JSON(Response{Data: comment}))
 }
 
 // New renders the form for creating a new Comment.
@@ -74,10 +86,8 @@ func (v CommentsResource) Create(c buffalo.Context) error {
 
 	// Bind comment to the html form elements
 	if err := c.Bind(comment); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "comments.created.failed"),
-			Type:    enums.Error,
-		}))
+
+		return Error(c, http.StatusForbidden, "comments.created.failed")
 	}
 
 	// Get the DB connection from the context
@@ -90,25 +100,14 @@ func (v CommentsResource) Create(c buffalo.Context) error {
 	verrs, err := tx.ValidateAndCreate(comment)
 
 	if err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "comments.created.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "comments.created.failed")
 	}
 
 	if verrs.HasAny() {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "comments.created.failed"),
-			Type:    enums.Error,
-			Errors:  verrs,
-		}))
+		return Error(c, http.StatusForbidden, "comments.created.failed", verrs)
 	}
 
-	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "comments.created.success"),
-		Type:    enums.Success,
-		Data:    comment,
-	}))
+	return Success(c, "comments.created.success", comment)
 }
 
 // Edit renders a edit form for a Comment. This function is
@@ -130,18 +129,13 @@ func (v CommentsResource) Update(c buffalo.Context) error {
 	comment := &models.Comment{}
 
 	if err := tx.Find(comment, c.Param("comment_id")); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "comments.updated.failed"),
-			Type:    enums.Error,
-		}))
+
+		return Error(c, http.StatusNotFound, "comments.updated.failed")
 	}
 
 	// Bind Comment to the html form elements
 	if err := c.Bind(comment); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "comments.updated.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "comments.updated.failed")
 	}
 
 	verrs, err := tx.ValidateAndUpdate(comment)
@@ -150,23 +144,15 @@ func (v CommentsResource) Update(c buffalo.Context) error {
 	}
 
 	if verrs.HasAny() {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "comments.updated.failed"),
-			Type:    enums.Error,
-			Errors:  verrs,
-		}))
+		return Error(c, http.StatusForbidden, "comments.updated.failed", verrs)
 	}
 
-	return c.Render(http.StatusForbidden, r.JSON(Response{
-		Message: T.Translate(c, "comments.updated.success"),
-		Type:    enums.Success,
-		Data:    comment,
-	}))
+	return Success(c, "comments.updated.success", comment)
 }
 
 // Destroy deletes a Comment from the DB. This function is mapped
 // to the path DELETE /comments/{comment_id}
-func (v CommentsResource) Destroy(c buffalo.Context) error {
+func (v CommentsResource) Destroy(c buffalo.Context) (err error) {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
@@ -178,21 +164,12 @@ func (v CommentsResource) Destroy(c buffalo.Context) error {
 
 	// To find the Comment the parameter comment_id is used.
 	if err := tx.Find(comment, c.Param("comment_id")); err != nil {
-		return c.Render(http.StatusNotFound, r.JSON(Response{
-			Message: T.Translate(c, "comments.destroy.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "comments.destroy.failed")
 	}
 
 	if err := tx.Destroy(comment); err != nil {
-		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "comments.destroy.failed"),
-			Type:    enums.Error,
-		}))
+		return Error(c, http.StatusForbidden, "comments.destroy.failed")
 	}
 
-	return c.Render(http.StatusNotFound, r.JSON(Response{
-		Message: T.Translate(c, "comments.destroy.success"),
-		Type:    enums.Success,
-	}))
+	return Success(c, "comments.destroy.success")
 }
