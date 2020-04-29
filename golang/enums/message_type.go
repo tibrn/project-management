@@ -28,10 +28,10 @@ func (mt *MessageType) UnmarshalJSON(b []byte) error {
 	return invalidType
 }
 
-func (mt MessageType) IsValid() error {
+func (mt MessageType) IsValid() bool {
 	switch mt {
 	case Error, Success, Warning:
-		return nil
+		return true
 	}
-	return invalidType
+	return false
 }

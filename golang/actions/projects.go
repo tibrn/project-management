@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"management/enums"
 	"management/models"
 	"net/http"
 
@@ -146,7 +147,7 @@ func (v ProjectsResource) Update(c buffalo.Context) error {
 		return Error(c, http.StatusForbidden, "project.update.failed", verrs)
 	}
 
-	return Success(c, "project.update.success", project)
+	return Success(c, enums.ProjectUpdateSuccess, project)
 }
 
 // Destroy deletes a Project from the DB. This function is mapped
@@ -170,5 +171,5 @@ func (v ProjectsResource) Destroy(c buffalo.Context) error {
 		return Error(c, http.StatusForbidden, "project.destroyed.failed")
 	}
 
-	return Success(c, "project.destroy.success")
+	return Success(c, enums.ProjectDestroySuccess)
 }

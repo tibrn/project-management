@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"management/enums"
 	"management/models"
 	"net/http"
 
@@ -43,7 +44,7 @@ func (v LicensesResource) List(c buffalo.Context) error {
 
 	// Retrieve all Licenses from the DB
 	if err := q.All(licenses); err != nil {
-		return errors.WithStack(err)
+		return InternalError(c)
 	}
 
 	return c.Render(http.StatusOK, r.JSON(Response{
@@ -181,5 +182,5 @@ func (v LicensesResource) Destroy(c buffalo.Context) error {
 	}
 
 	// Redirect to the licenses index page
-	return Success(c, "license.destroy.success")
+	return Success(c, enums.LicenseDestroySuccess)
 }

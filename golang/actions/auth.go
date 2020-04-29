@@ -60,7 +60,7 @@ func AuthCreate(c buffalo.Context) error {
 		if errors.Cause(err) == sql.ErrNoRows {
 			// couldn't find an user with the supplied email address.
 			return c.Render(http.StatusUnauthorized, r.JSON(Response{
-				Message: T.Translate(c, "user.not_found"),
+				Message: T.Translate(c, enums.UserNotFound),
 				Type:    enums.Error,
 			}))
 		}
@@ -74,7 +74,7 @@ func AuthCreate(c buffalo.Context) error {
 
 	if err != nil {
 		return c.Render(http.StatusUnauthorized, r.JSON(Response{
-			Message: T.Translate(c, "user.password_not_match"),
+			Message: T.Translate(c, enums.UserPasswordNotMatch),
 			Type:    enums.Error,
 		}))
 	}
@@ -93,13 +93,13 @@ func AuthCreate(c buffalo.Context) error {
 	//Error handling
 	if err != nil {
 		return c.Render(http.StatusForbidden, r.JSON(Response{
-			Message: T.Translate(c, "login.failed"),
+			Message: T.Translate(c, enums.LoginFailed),
 			Type:    enums.Error,
 		}))
 	}
 
 	return c.Render(http.StatusOK, r.JSON(Response{
-		Message: T.Translate(c, "login.success", map[string]string{
+		Message: T.Translate(c, enums.LoginSuccess, map[string]string{
 			"name": user.Name,
 		}),
 		Type: enums.Success,

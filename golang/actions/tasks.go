@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"management/enums"
 	"management/models"
 	"net/http"
 
@@ -111,7 +112,7 @@ func (v TasksResource) Create(c buffalo.Context) error {
 	}
 
 	// and redirect to the tasks index page
-	return Success(c, "task.create.success", task)
+	return Success(c, enums.TaskCreateSuccess, task)
 }
 
 // Edit renders a edit form for a Task. This function is
@@ -155,7 +156,7 @@ func (v TasksResource) Update(c buffalo.Context) error {
 		return Error(c, http.StatusForbidden, "task.update.failed", verrs)
 	}
 
-	return Success(c, "task.update.success", task)
+	return Success(c, enums.TaskUpdateSuccess, task)
 }
 
 // Destroy deletes a Task from the DB. This function is mapped
