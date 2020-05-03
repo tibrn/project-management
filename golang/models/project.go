@@ -17,9 +17,9 @@ type Project struct {
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 	//Relationships
-	Tasks     Tasks     `many_to_many:"projects_tasks"`
-	Languages Languages `many_to_many:"projects_languages"`
-	License   License   `has_one:"license"`
+	Tasks     Tasks     `json:"tasks,omitempty" many_to_many:"projects_tasks"`
+	Languages Languages `json:"languages,omitempty" many_to_many:"projects_languages"`
+	License   License   `json:"license,omitempty" has_one:"license"`
 }
 
 // String is not required by pop and may be deleted

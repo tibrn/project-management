@@ -81,7 +81,10 @@ module.exports = configure(function (ctx) {
         'QInfiniteScroll',
         'QSpinner',
         'QSpinnerHourglass',
-        'QScrollArea'
+        'QScrollArea',
+        'QAvatar',
+        'QInnerLoading',
+        'QSpinnerGears',
       ],
 
       directives: [

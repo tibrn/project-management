@@ -4,11 +4,13 @@ import AuthMiddleware from '../middlewares/auth'
 const ProjectsList = () => import(/* webpackChunkName: "projects" */ 'src/pages/projects/ProjectsList.vue')
 const ProjectsEdit = () => import(/* webpackChunkName: "projects" */ 'src/pages/projects/ProjectsEdit.vue')
 const ProjectsNew = () => import(/* webpackChunkName: "projects" */ 'src/pages/projects/ProjectsNew.vue')
+const Home = () => import(/* webpackChunkName: "home" */ 'src/pages/Home.vue')
 export default ([
   {
     name: 'dashboard',
-    path: '/',
+    path: '/dashboard',
     component: { render (h): VNode { return h('router-view') } },
+    redirect: { name: 'home' },
     meta: {
       layout: 'app',
       middleware: {
@@ -17,8 +19,19 @@ export default ([
     },
     children: [
       {
-        name: 'dashboard',
-        path: '/projects',
+        name: 'home',
+        path: 'home',
+        component: Home,
+        meta: {
+          layout: 'app',
+          middleware: {
+            attach: [AuthMiddleware]
+          }
+        }
+      },
+      {
+        name: 'projects',
+        path: 'projects',
         component: ProjectsList,
         meta: {
           layout: 'app',
@@ -28,8 +41,8 @@ export default ([
         },
       },
       {
-        name: 'dashboard',
-        path: '/project/:id',
+        name: 'project-show',
+        path: 'project/:id',
         component: ProjectsEdit,
         meta: {
           layout: 'app',
@@ -39,8 +52,19 @@ export default ([
         },
       },
       {
-        name: 'dashboard',
-        path: '/project/new',
+        name: 'project-new',
+        path: 'project/new',
+        component: ProjectsNew,
+        meta: {
+          layout: 'app',
+          middleware: {
+            attach: [AuthMiddleware]
+          }
+        },
+      },
+      {
+        name: 'project-edit',
+        path: 'project/edit/:id',
         component: ProjectsNew,
         meta: {
           layout: 'app',

@@ -5,10 +5,14 @@ import { Dialog, Notify } from 'quasar'
 import { boot } from 'quasar/wrappers'
 import { instance as store } from 'src/store/index'
 import { instance as router } from 'src/router/index'
-
+import { TokenStorage } from 'src/services/token'
 const AxiosInstance = axios.create({
   baseURL: process.env.API
 })
+
+if (TokenStorage.getToken()) {
+  axios.defaults.headers.common.Authorization = TokenStorage.getAuthentication().Authorization
+}
 
 let countErrors = 0
 const transform = (type: string): string => {
@@ -74,6 +78,13 @@ AxiosInstance.interceptors.response.use(
           actions: [{ icon: 'close', color: 'white' }],
           onDismiss: remove
         })
+      }
+    }
+
+    if (error.response.data && status === 401) {
+      if (error.response.data.error === "Token is expired") {
+        TokenStorage.clear()
+        router.push({ name: 'login' })
       }
     }
 

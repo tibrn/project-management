@@ -31,8 +31,6 @@ export function SET_USER (state: UserState, payload: any) {
   if (payload.token) {
     TokenStorage.storeToken(payload.token)
 
-    state.token = TokenStorage.getAuthentication().headers.Authorization
-
-    Object.assign(axios.defaults.headers.common, TokenStorage.getAuthentication().headers)
+    state.token = TokenStorage.getAuthentication().Authorization
   }
 }

@@ -327,6 +327,28 @@ CREATE TABLE public.user_settings (
 ALTER TABLE public.user_settings OWNER TO tibi;
 
 --
+-- Name: user_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: tibi
+--
+
+CREATE SEQUENCE public.user_settings_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_settings_id_seq OWNER TO tibi;
+
+--
+-- Name: user_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: tibi
+--
+
+ALTER SEQUENCE public.user_settings_id_seq OWNED BY public.user_settings.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: tibi
 --
 
@@ -473,6 +495,13 @@ ALTER TABLE ONLY public.user_actions ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: user_settings id; Type: DEFAULT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_settings ALTER COLUMN id SET DEFAULT nextval('public.user_settings_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: tibi
 --
 
@@ -533,6 +562,14 @@ ALTER TABLE ONLY public.tasks
 
 ALTER TABLE ONLY public.user_actions
     ADD CONSTRAINT user_actions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_settings user_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: tibi
+--
+
+ALTER TABLE ONLY public.user_settings
+    ADD CONSTRAINT user_settings_pkey PRIMARY KEY (id);
 
 
 --

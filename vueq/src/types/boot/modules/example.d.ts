@@ -1,3 +1,3 @@
-interface StaticExample{
-  example : string
+interface StaticExample {
+  example: string;
 }

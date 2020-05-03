@@ -12,9 +12,10 @@ type UserSetting struct {
 	ID        int64     `json:"id" db:"id"`
 	UserID    int64     `json:"user_id" db:"user_id"`
 	Avatar    string    `json:"avatar" db:"avatar"`
-	User      *User     `belongs_to:"user"`
 	CreatedAt time.Time `json:"-" db:"created_at"`
 	UpdatedAt time.Time `json:"-" db:"updated_at"`
+
+	User *User `json:"user,omitempty" belongs_to:"users"`
 }
 
 // String is not required by pop and may be deleted

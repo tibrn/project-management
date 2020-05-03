@@ -212,7 +212,7 @@
 <script lang="ts">
 
 import { defineComponent, reactive, toRefs, ref, Ref } from '@vue/composition-api'
-import { createNamespacedHelpers } from 'vuex'
+import { createNamespacedHelpers } from 'src/store/index'
 import { QForm } from 'quasar'
 const { mapMutations } = createNamespacedHelpers('user')
 const modelForm = {
@@ -242,7 +242,6 @@ const validation = {
 export default defineComponent({
   name: 'Login',
   setup(props, ctx) {
-    console.log(validation)
     const state = reactive({
       isLoading: false,
 
@@ -270,7 +269,7 @@ export default defineComponent({
           const { data } = await axios.post("/api/users", state.form)
 
           if (typeof data !== "undefined") {
-            SET_USER(data.data)
+            // SET_USER(data.data)
           }
 
           state.formErrors = { ...modelForm }

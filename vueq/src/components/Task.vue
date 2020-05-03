@@ -1,12 +1,14 @@
 <template>
-  <q-page padding>
-    <h4> New Project</h4>
-  </q-page>
+  <div>My component</div>
 </template>
 
 <script>
+
 import { defineComponent } from '@vue/composition-api'
 export default defineComponent({
-  name: 'ProjectsNew',
+  name: 'Task',
+  setup () {
+    return {}
+  }
 })
 </script>

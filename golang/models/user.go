@@ -200,7 +200,7 @@ func (u *User) BeforeUpdate(tx *pop.Connection) error {
 func (u *User) GenerateSlug() error {
 	userSlug := slug.Make(fmt.Sprintf("%s_%s", u.Name, u.Surname))
 
-	count, err := DB.Where("slug LIKE '%' || ? || '%' ", userSlug).Where("id <> ?", u.ID).Count(&User{})
+	count, err := DB.Where("slug LIKE '%' || ? || '%' ", userSlug).Count(&User{})
 
 	if err != nil {
 

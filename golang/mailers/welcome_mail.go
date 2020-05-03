@@ -35,15 +35,16 @@ func SendWelcomeEmails(args worker.Args) error {
 	m.Subject = "Welcome Email"
 	m.From = "barontiberiu@gmail.com"
 	m.To = []string{user.Email}
-	err = m.AddBody(r.HTML("welcome_email.html"), render.Data{
+	err = m.AddBody(r.HTML("welcome_mail.plush.html"), render.Data{
 		"user": user,
 	})
 
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	err = smtp.Send(m)
-	fmt.Println("mail sent")
+
 	return err
 }

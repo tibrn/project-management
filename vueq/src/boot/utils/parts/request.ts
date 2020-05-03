@@ -23,6 +23,7 @@ export default async function ({
   try {
     await call.apply(vm)
   } catch (e) {
+    console.log(e)
     if (e.response && e.response.data && e.response.data.errors) {
       Object.assign(
         vm[errors],

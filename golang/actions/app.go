@@ -86,6 +86,7 @@ func App() *buffalo.App {
 				},
 				Name:           "Worker",
 				MaxConcurrency: 25,
+				Logger:         buffalo.NewOptions().Logger,
 			}),
 		})
 
@@ -139,6 +140,8 @@ func App() *buffalo.App {
 
 		app.GET("/github/callback", platform.GithubCallback)
 
+		app.GET("/user/confirm", userResource.Confirm)
+
 		api.POST("/login", AuthCreate)
 
 		api.DELETE("/logout", AuthDestroy)
@@ -149,19 +152,19 @@ func App() *buffalo.App {
 
 		app.GET("/", HomeHandler)
 
-		app.ServeFiles("/", assetsBox) // serve files from the public directory
+		api.Resource("/projects", ProjectsResource{})
 
-		api.Resource("project", ProjectsResource{})
+		api.Resource("/comments", CommentsResource{})
 
-		api.Resource("comment", ProjectsResource{})
+		api.Resource("/tasks", TasksResource{})
 
-		api.Resource("task", TasksResource{})
-
-		api.Resource("license", LicensesResource{})
+		api.Resource("/licenses", LicensesResource{})
 
 		app.GET("/{path:.+}", VueHandler)
 
-		app.GET("/user/confirm", userResource.Confirm)
+		go func() {
+			app.ServeFiles("/", assetsBox) // serve files from the public directory
+		}()
 
 	}
 
