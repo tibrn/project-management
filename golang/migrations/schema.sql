@@ -677,14 +677,6 @@ ALTER TABLE ONLY public.projects_languages
 
 
 --
--- Name: projects projects_platform_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
---
-
-ALTER TABLE ONLY public.projects
-    ADD CONSTRAINT projects_platform_id_fkey FOREIGN KEY (platform_id) REFERENCES public.platforms(id) ON DELETE CASCADE;
-
-
---
 -- Name: tasks tasks_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: tibi
 --
 

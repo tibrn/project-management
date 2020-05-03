@@ -1,0 +1,1 @@
+drop_foreign_key("projects", "projects_platform_id_fkey", {"if_exists": true})

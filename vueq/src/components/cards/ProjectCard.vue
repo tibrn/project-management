@@ -1,23 +1,26 @@
 <template>
   <q-card
-    class="my-card"
-    flat
+    class="Card"
     bordered
   >
 
     <q-card-section>
 
       <div class="text-h5 q-mt-sm q-mb-xs">{{project.name}}</div>
-      <div class="text-caption text-grey">
-        {{project.description}}
+      <div class="Card__description text-caption text-grey q-pa-sm">
+        {{ project.description}}
       </div>
     </q-card-section>
 
-    <q-card-actions>
+    <q-card-actions
+      class="vertical-bottom"
+      style="display:inline-block;"
+    >
       <q-btn
         flat
         color="dark"
         label="Edit"
+        @click="$router.push({name:'project-edit',params:{id:project.id}})"
       />
       <q-btn
         flat
@@ -64,3 +67,17 @@ export default defineComponent({
   // },
 })
 </script>
+<style lang="scss" scoped>
+.Card {
+  width: 100%;
+  max-width: 350px;
+  height: 200px;
+  word-wrap: break-word;
+
+  &__description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 70px;
+  }
+}
+</style>

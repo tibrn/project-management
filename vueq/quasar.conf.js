@@ -85,6 +85,7 @@ module.exports = configure(function (ctx) {
         'QAvatar',
         'QInnerLoading',
         'QSpinnerGears',
+        'QSpace',
       ],
 
       directives: [

@@ -68,7 +68,7 @@ func (v ProjectsResource) Show(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Find(project, c.Param("project_id")); err != nil {
-		return Error(c, http.StatusForbidden, "project.not_found")
+		return Error(c, http.StatusNotFound, "project.not_found")
 	}
 
 	return c.Render(http.StatusOK, r.JSON(Response{Data: project}))
@@ -83,6 +83,12 @@ func (v ProjectsResource) New(c buffalo.Context) error {
 // Create adds a Project to the DB. This function is mapped to the
 // path POST /projects
 func (v ProjectsResource) Create(c buffalo.Context) error {
+
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return InternalError(c)
+	}
+
 	// Allocate an empty Project
 	project := &models.Project{}
 
@@ -92,14 +98,11 @@ func (v ProjectsResource) Create(c buffalo.Context) error {
 	}
 
 	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return InternalError(c)
-	}
 
 	// Validate the data from the html form
 	verrs, err := tx.ValidateAndCreate(project)
 	if err != nil {
+
 		return InternalError(c)
 	}
 
@@ -140,6 +143,7 @@ func (v ProjectsResource) Update(c buffalo.Context) error {
 
 	verrs, err := tx.ValidateAndUpdate(project)
 	if err != nil {
+
 		return InternalError(c)
 	}
 

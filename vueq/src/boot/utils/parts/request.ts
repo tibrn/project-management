@@ -1,7 +1,7 @@
 import { RequestUtil } from "src/types/boot/utils"
 
 export default async function ({
-  vm, loading, errors, call
+  vm, loading, errors, call, debug
 }: RequestUtil) {
   if (typeof call === 'undefined') {
     return
@@ -23,8 +23,10 @@ export default async function ({
   try {
     await call.apply(vm)
   } catch (e) {
-    console.log(e)
-    if (e.response && e.response.data && e.response.data.errors) {
+    if (debug) {
+      console.error(e)
+    }
+    if (e.response && e.response.data && e.response.data.errors && vm[errors]) {
       Object.assign(
         vm[errors],
         ...Object.keys(e.response.data.errors).map(key => ({

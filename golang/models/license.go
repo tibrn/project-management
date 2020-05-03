@@ -16,7 +16,7 @@ type License struct {
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 	//Relationships
-	Project *Project `belongs_to:"project"`
+	Project *Project `json:"project,omitempty" belongs_to:"project"`
 }
 
 // String is not required by pop and may be deleted

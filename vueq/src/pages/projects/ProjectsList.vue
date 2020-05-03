@@ -3,7 +3,7 @@
 
     <div class="q-pa-md">
 
-      <div class="row">
+      <div class="row ">
         <div class="col-3">
           <h4 class="Title"> Projects</h4>
         </div>
@@ -16,11 +16,11 @@
 
       <div
         v-if="projects"
-        class="row"
+        class="row q-py-lg"
       >
         <div
           v-for="project in projects"
-          class="col-3"
+          class="col-3 q-px-sm"
           :key="project.id"
         >
 
