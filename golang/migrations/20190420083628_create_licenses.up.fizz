@@ -1,9 +1,0 @@
-create_table("licenses") {
-	t.Column("id", "integer", {primary: true})
-	t.Column("project_id","uuid",{})
-	t.Column("name", "string",{null:false})
-	t.Column("description", "string",{null:true})
-	t.Column("nickname","string",{})
-	t.Column("url","string",{})
-	t.ForeignKey("project_id",{"projects": ["id"]}, {"on_delete": "cascade"})
-}

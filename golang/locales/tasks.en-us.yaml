@@ -1,6 +1,0 @@
-- id: "task.create.success"
-  translation: "Task was successfully created."
-- id: "task.update.success"
-  translation: "Task was successfully updated."
-- id: "task.destroy.success"
-  translation: "Task was successfully destroyed."

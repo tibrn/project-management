@@ -1,6 +1,0 @@
-- id: "github.create.success"
-  translation: "Github was successfully created."
-- id: "github.update.success"
-  translation: "Github was successfully updated."
-- id: "github.destroy.success"
-  translation: "Github was successfully destroyed."

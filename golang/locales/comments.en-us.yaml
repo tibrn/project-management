@@ -1,6 +1,0 @@
-- id: "comment.create.success"
-  translation: "Comment was successfully created."
-- id: "comment.update.success"
-  translation: "Comment was successfully updated."
-- id: "comment.destroy.success"
-  translation: "Comment was successfully destroyed."

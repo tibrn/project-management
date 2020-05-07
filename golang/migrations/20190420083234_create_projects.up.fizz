@@ -1,9 +1,0 @@
-create_table("projects") {
-	t.Column("id", "uuid", {primary: true})
-	t.Column("platform_id","integer",{})
-	t.Column("name", "string",{})
-	t.Column("description", "string",{})
-	t.Column("closed", "bool",{default:false})
-	t.Column("url", "string",{default:""})
-	t.ForeignKey("platform_id", {"platforms": ["id"]}, {"on_delete": "cascade"})
-}
