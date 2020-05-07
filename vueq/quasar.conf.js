@@ -86,6 +86,7 @@ module.exports = configure(function (ctx) {
         'QInnerLoading',
         'QSpinnerGears',
         'QSpace',
+        'QPagination'
       ],
 
       directives: [
@@ -124,6 +125,8 @@ module.exports = configure(function (ctx) {
         : { // and on build (production):
           API: JSON.stringify(''),
         },
+      distDir: '../golang/assets/v',
+      publicPath: '/assets/v',
       // rtl: false, // https://quasar.dev/options/rtl-support
       // showProgress: false,
       // gzip: true,
@@ -146,6 +149,8 @@ module.exports = configure(function (ctx) {
               formatter: require('eslint').CLIEngine.getFormatter('stylish')
             }
           })
+          cfg.output.chunkFilename = 'js/management-[name].js'
+          cfg.output.filename = 'js/management-[name].js'
         }
       }
     },
@@ -155,14 +160,19 @@ module.exports = configure(function (ctx) {
       https: false,
       port: 8080,
       open: true, // opens browser window automatically
-      proxy: {
-        // proxy all requests starting with /api to jsonplaceholder
-        api: {
-          target: 'http://management.local:3000',
-          changeOrigin: true,
-        },
-      },
+      host: 'management.local',
+      // proxy: {
+      //   // '/': {
+      //   //   target: 'http://management.local:3000',
+      //   //   changeOrigin: true,
+      //   //   // pathRewrite: { '^/api': '' }
+      //   // }
+      // }
     },
+
+    // The directory where the production build files will be generated in when running vue-cli-service build.
+    // Note the target directory will be removed before building (this behavior can be disabled by passing
+    //  --no-clean when building).
 
     // animations: 'all', // --- includes all animations
     // https://quasar.dev/options/animations
@@ -255,6 +265,7 @@ module.exports = configure(function (ctx) {
       extendWebpack (/* cfg */) {
         // do something with Electron main process Webpack cfg
         // chainWebpack also available besides this extendWebpack
+
       }
     }
   }

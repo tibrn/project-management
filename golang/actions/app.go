@@ -125,32 +125,27 @@ func App() *buffalo.App {
 		})
 
 		// api.Use(SetCurrentUser)
-		// api.Use(Authorize)
+
 		api.Use(TokenAuth)
 
 		//Resources
 		userResource := UsersResource{&buffalo.BaseResource{}}
 
-		// api.Middleware.Skip(Authorize, AuthCreate, userResource.Create)
-
-		api.Middleware.Skip(TokenAuth, AuthCreate, userResource.Create)
+		api.Middleware.Skip(TokenAuth, AuthCreate, userResource.Create, HomeHandler)
+		app.Middleware.Skip(TokenAuth, VueHandler)
 
 		//PLATFORMS
 		platform := Platform{}
-
-		app.GET("/github/callback", platform.GithubCallback)
-
-		app.GET("/user/confirm", userResource.Confirm)
 
 		api.POST("/login", AuthCreate)
 
 		api.DELETE("/logout", AuthDestroy)
 
-		api.GET("/refresh", AuthRefresh)
+		api.GET("/users/confirm", userResource.Confirm)
+
+		api.GET("/users/refresh", AuthRefresh)
 
 		api.Resource("/users", userResource)
-
-		app.GET("/", HomeHandler)
 
 		api.Resource("/projects", ProjectsResource{})
 
@@ -162,9 +157,10 @@ func App() *buffalo.App {
 
 		app.GET("/{path:.+}", VueHandler)
 
-		go func() {
-			app.ServeFiles("/", assetsBox) // serve files from the public directory
-		}()
+		app.GET("/", HomeHandler)
+
+		app.GET("/github/callback", platform.GithubCallback)
+		app.ServeFiles("/assets", assetsBox) // serve files from the public directory
 
 	}
 

@@ -14,6 +14,10 @@ var smtp mail.Sender
 var r *render.Engine
 var Mails = map[string]func(args worker.Args) error{}
 
+const (
+	EmailWelcomeJob = "welcome"
+)
+
 func init() {
 
 	// Pulling config from the env.
@@ -35,5 +39,5 @@ func init() {
 		Helpers:      render.Helpers{},
 	})
 
-	Mails["welcome"] = SendWelcomeEmails
+	Mails[EmailWelcomeJob] = SendWelcomeEmails
 }

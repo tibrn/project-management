@@ -12,32 +12,30 @@
       </div>
     </q-card-section>
 
-    <q-card-actions
-      class="vertical-bottom"
-      style="display:inline-block;"
-    >
+    <q-card-actions class="Card__actions">
       <q-btn
         flat
         color="dark"
         label="Edit"
-        @click="$router.push({name:'project-edit',params:{id:project.id}})"
+        @click="$router.push({name:'project-edit',params:{ id: project.id}})"
       />
       <q-btn
         flat
         color="primary"
         label="Add Task"
+        @click="$router.push({name:'project-show',params:{ id: project.id}})"
+      />
+
+      <q-btn
+        class="float-right"
+        flat
+        color="negative"
+        label="Delete"
+        @click="$emit('delete',project)"
       />
 
       <q-space />
 
-      <!-- <q-btn
-        color="grey"
-        round
-        flat
-        dense
-        :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-        @click="expanded = !expanded"
-      /> -->
     </q-card-actions>
 
     <!-- <q-slide-transition>
@@ -62,9 +60,6 @@ export default defineComponent({
       required: true,
     },
   },
-  // setup(props, ctx) {
-
-  // },
 })
 </script>
 <style lang="scss" scoped>
@@ -73,11 +68,19 @@ export default defineComponent({
   max-width: 350px;
   height: 200px;
   word-wrap: break-word;
-
+  position: relative;
   &__description {
     overflow: hidden;
     text-overflow: ellipsis;
     max-height: 70px;
+  }
+
+  &__actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: block;
   }
 }
 </style>

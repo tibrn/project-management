@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
 
-    <h4> {{isNew ? 'New' : 'Edit'}} Project</h4>
+    <h4 class="Title"> {{isNew ? 'New' : 'Edit'}} Project</h4>
 
     <div class="q-px-xl">
 
@@ -138,7 +138,8 @@ export default defineComponent({
         call: async () => {
           const { data } = await axios.get(`/api/projects/${ID.value}`)
 
-          state.form = data.data
+          state.form.name = data.data.name
+          state.form.description = data.data.description
         },
       })
     }

@@ -1,2 +1,3 @@
-export function d(/* context */) {
+export function d (/* context */) {
+  throw Error('Not implemented')
 }

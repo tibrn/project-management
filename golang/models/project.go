@@ -20,7 +20,7 @@ type Project struct {
 	//Relationships
 	Tasks     Tasks     `json:"tasks,omitempty" many_to_many:"projects_tasks"`
 	Languages Languages `json:"languages,omitempty" many_to_many:"projects_languages"`
-	License   License   `json:"license,omitempty" has_one:"license"`
+	License   *License  `json:"license,omitempty" has_one:"license"`
 }
 
 // String is not required by pop and may be deleted

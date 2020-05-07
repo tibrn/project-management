@@ -1,6 +1,9 @@
 
+interface VM {
+  [id: string]: any;
+}
 export interface RequestUtil {
-  vm: any;
+  vm: VM;
   call: Function;
   loading?: string;
   errors?: string;

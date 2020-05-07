@@ -48,5 +48,6 @@ func HomeHandler(c buffalo.Context) error {
 // a home page.
 
 func VueHandler(c buffalo.Context) error {
-	return c.Render(http.StatusOK, r.HTML("vue.plush.html"))
+
+	return c.Render(http.StatusOK, r.HTML("vue.plush.html", "layout/simple.html"))
 }

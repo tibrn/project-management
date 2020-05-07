@@ -18,15 +18,17 @@ export default async function ({
     return
   }
 
-  vm[loading] = true
+  if (typeof vm[loading] === 'boolean') {
+    vm[loading] = true
+  }
 
   try {
-    await call.apply(vm)
+    await call()
   } catch (e) {
     if (debug) {
       console.error(e)
     }
-    if (e.response && e.response.data && e.response.data.errors && vm[errors]) {
+    if (e.response && e.response.data && e.response.data.errors && typeof vm[errors] === 'object') {
       Object.assign(
         vm[errors],
         ...Object.keys(e.response.data.errors).map(key => ({
@@ -35,5 +37,7 @@ export default async function ({
       )
     }
   }
-  vm[loading] = false
+  if (typeof vm[loading] === 'boolean') {
+    vm[loading] = false
+  }
 }

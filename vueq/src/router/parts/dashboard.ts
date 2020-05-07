@@ -5,6 +5,7 @@ const ProjectsList = () => import(/* webpackChunkName: "projects" */ 'src/pages/
 const ProjectsEdit = () => import(/* webpackChunkName: "projects" */ 'src/pages/projects/ProjectsEdit.vue')
 const ProjectShow = () => import(/* webpackChunkName: "projects" */ 'src/pages/projects/ProjectShow.vue')
 const Home = () => import(/* webpackChunkName: "home" */ 'src/pages/Home.vue')
+const regexUUID = /^[A-F]{8}-[A-F]{4}-4[A-F]{3}-[89AB][A-F]{3}-[A-F]{12}$/i
 export default ([
   {
     name: 'dashboard',
@@ -54,7 +55,7 @@ export default ([
       },
       {
         name: 'project-edit',
-        path: 'project/edit/:id',
+        path: `project/edit/:id`,
         component: ProjectsEdit,
         meta: {
           layout: 'app',
@@ -65,7 +66,7 @@ export default ([
       },
       {
         name: 'project-show',
-        path: 'project/:id(\\d+)',
+        path: `project/:id`,
         component: ProjectShow,
         meta: {
           layout: 'app',

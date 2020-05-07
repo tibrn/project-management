@@ -12,25 +12,31 @@ var (
 	typeEmailNonExistent = errors.New("Task for type email dosen't exist")
 )
 
+const (
+	EmailJobArg = "type_email"
+)
+
 func SendEmail(args worker.Args) error {
 
 	var (
 		typeEmail string
 		sendEmail func(worker.Args) error
 	)
-
-	if val, ok := args["type_email"].(string); !ok {
+	//Check type_email args exist
+	if val, ok := args[EmailJobArg].(string); !ok {
 		return noTypeEmail
 	} else {
 		typeEmail = val
 	}
 
+	//Check type email job exist
 	if val, ok := mailers.Mails[typeEmail]; !ok {
 		return typeEmailNonExistent
 	} else {
 		sendEmail = val
 	}
 
+	//Send email
 	return sendEmail(args)
 
 }

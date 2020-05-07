@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+    <meta charset="utf-8">
+    <title>Baron Tiberiu</title>
+    <meta name="csrf-param" content="authenticity_token" />
+    <meta name="csrf-token" content="<%= authenticity_token %>" />
+
+    <link href="<%= assetPath("v/css/app.76fb89fa.css") %>" rel=preload as=style>
+    <link href="<%= assetPath("v/css/app.76fb89fa.css") %>" rel=stylesheet>
+
+    <!-- <link href=/assets/css/chunk-vendors.css rel=preload as=style>
+    <link href=/assets/css/chunk-vendors.css rel=stylesheet> -->
+
+    <link href="<%= assetPath("v/js/management-vendor.js") %>" rel=preload as=script>
+    <link href="<%= assetPath("v/js/management-runtime.js") %>" rel=preload as=script>
+    <link href="<%= assetPath("v/js/management-app.js") %>" rel=preload as=script>
+  </head>
+  <body>
+    <noscript>
+      <strong>
+        We're sorry but the website doesn't work properly without JavaScript enabled. Please enable it to continue.
+      </strong>
+    </noscript>
+
+
+    <div id="q-app"></div>
+
+    <script src="<%= assetPath("v/js/management-vendor.js") %>"></script>
+    <script src="<%= assetPath("v/js/management-runtime.js") %>"></script>
+    <script src="<%= assetPath("v/js/management-app.js") %>"></script>
+  </body>
+</html>

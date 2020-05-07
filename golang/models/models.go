@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"time"
 
 	"github.com/go-redis/cache/v7"
 	"github.com/go-redis/redis/v7"
@@ -48,4 +49,6 @@ func init() {
 			return msgpack.Unmarshal(b, v)
 		},
 	}
+
+	Store.UseLocalCache(10000, 3*time.Hour)
 }

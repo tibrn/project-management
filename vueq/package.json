@@ -13,8 +13,10 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "@types/js-cookie": "^2.2.6",
     "@vue/composition-api": "^0.5.0",
     "axios": "^0.18.1",
+    "js-cookie": "^2.2.1",
     "quasar": "^1.9.5",
     "vue-axios": "^2.1.5",
     "vue-i18n": "^8.0.0",
@@ -34,7 +36,8 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-vue": "^6.1.2"
+    "eslint-plugin-vue": "^6.1.2",
+    "style-loader": "^1.2.1"
   },
   "engines": {
     "node": ">= 10.18.1",

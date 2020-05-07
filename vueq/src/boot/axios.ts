@@ -6,8 +6,14 @@ import { boot } from 'quasar/wrappers'
 import { instance as store } from 'src/store/index'
 import { instance as router } from 'src/router/index'
 import { TokenStorage } from 'src/services/token'
+
+const token = document.head.querySelector('meta[name="csrf-token"]')
+if (token) {
+  axios.defaults.headers.common['X-CSRF-TOKEN'] = token.getAttribute('content')
+}
+
 const AxiosInstance = axios.create({
-  baseURL: process.env.API
+  baseURL: process.env.API,
 })
 
 if (TokenStorage.getToken()) {
@@ -27,6 +33,7 @@ const transform = (type: string): string => {
       return 'info'
   }
 }
+
 // Response interceptor
 AxiosInstance.interceptors.response.use(
   (response) => {

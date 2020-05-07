@@ -1,7 +1,7 @@
 import { RootState } from './../types/store/index.d'
 import Vue from 'vue'
 import { store } from 'quasar/wrappers'
-import Vuex, { Store, mapState, mapGetters, mapMutations, mapActions, NamespacedMappers } from 'vuex'
+import Vuex, { mapState, mapGetters, mapMutations, mapActions, NamespacedMappers } from 'vuex'
 import modules from './modules'
 // import example from './module-example'
 // import exampleState from './module-example/state'
@@ -25,13 +25,13 @@ export const instance = new Vuex.Store<RootState>({
   strict: !!process.env.DEV
 })
 
-export default store(({ Vue }) => {
+export default store(() => {
   return instance
 })
 const binder = { $store: instance }
 
 const bindStore = (fun: Function): any => {
-  return function(args: Array<string>) {
+  return function (args: Array<string>) {
     const object = fun(args)
     Object.keys(object).map(key => {
       object[key] = object[key].bind(binder)

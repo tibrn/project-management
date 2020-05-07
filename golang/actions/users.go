@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"management/enums"
+	"management/mailers"
 	"management/models"
 
 	"github.com/dgrijalva/jwt-go"
@@ -134,6 +135,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 		ExpiresAt: time.Now().Add(authTokenTime).Unix(),
 		Id:        fmt.Sprintf("%d", user.ID),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secretKey)
 
@@ -145,14 +147,10 @@ func (v UsersResource) Create(c buffalo.Context) error {
 	//End create jwt token
 
 	//Send confirm email
-	App().Worker.Perform(worker.Job{
-		Queue:   "default",
-		Handler: "send_email",
-		Args: worker.Args{
-			"user_id":    user.ID,
-			"type_email": "welcome",
-		},
-	})
+	App().Worker.Perform(mailers.NewJob(worker.Args{
+		"user_id":   user.ID,
+		EmailJobArg: mailers.EmailWelcomeJob,
+	}))
 
 	return Success(c, enums.UserCreateSuccess, AuthData{
 		Token: tokenString,

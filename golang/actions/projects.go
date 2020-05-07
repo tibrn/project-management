@@ -67,7 +67,7 @@ func (v ProjectsResource) Show(c buffalo.Context) error {
 	project := &models.Project{}
 
 	// To find the User the parameter user_id is used.
-	if err := tx.Find(project, c.Param("project_id")); err != nil {
+	if err := tx.Eager("License").Find(project, c.Param("project_id")); err != nil {
 		return Error(c, http.StatusNotFound, "project.not_found")
 	}
 

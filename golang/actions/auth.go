@@ -22,17 +22,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	//TODO: SET TO 5 MINUTE EXPIRATION
-	authTokenTime = 50 * time.Minute
-)
-
 var (
 	secretKey []byte
 )
 
 const (
-	userAuth = "user_auth"
+	authTokenTime   = 3 * 24 * 60 * time.Minute
+	userAuth        = "user_auth"
+	cookieTokenName = "token"
 )
 
 type AuthData struct {
@@ -43,6 +40,7 @@ type AuthData struct {
 // AuthCreate attempts to log the user in with an existing account.
 func AuthCreate(c buffalo.Context) error {
 	user := &models.User{}
+
 	if err := c.Bind(user); err != nil {
 		return err
 	}
@@ -98,6 +96,16 @@ func AuthCreate(c buffalo.Context) error {
 		}))
 	}
 
+	ck := http.Cookie{
+		Name:     cookieTokenName,
+		Value:    tokenString,
+		Path:     "/",
+		MaxAge:   int(authTokenTime.Seconds()),
+		HttpOnly: true,
+	}
+
+	http.SetCookie(c.Response(), &ck)
+
 	return c.Render(http.StatusOK, r.JSON(Response{
 		Message: T.Translate(c, enums.LoginSuccess, map[string]string{
 			"name": user.Name,
@@ -110,15 +118,80 @@ func AuthCreate(c buffalo.Context) error {
 	}))
 }
 
+var (
+	errBadRequest   = errors.New("Bad Request")
+	errUnauthorized = errors.New("Unauthorized")
+)
+
 //AuthRefresh ... Refresh authentication of user
 func AuthRefresh(c buffalo.Context) error {
-	return nil
+
+	tknStr, err := c.Cookies().Get(cookieTokenName)
+
+	if err != nil {
+		if err == http.ErrNoCookie {
+
+			return c.Error(http.StatusUnauthorized, errUnauthorized)
+		}
+
+		return c.Error(http.StatusBadRequest, errBadRequest)
+	}
+
+	claims := &jwt.StandardClaims{}
+
+	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return c.Error(http.StatusUnauthorized, errUnauthorized)
+		}
+		return c.Error(http.StatusBadRequest, errBadRequest)
+	}
+
+	if !tkn.Valid {
+		return c.Error(http.StatusUnauthorized, errors.New("Token invalid"))
+	}
+
+	if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
+		return c.Error(http.StatusBadRequest, errors.New("Token invalid"))
+	}
+
+	//Create jwt token
+	newClaims := jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(authTokenTime).Unix(),
+		Id:        fmt.Sprintf("%d", Auth(c).ID),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, newClaims)
+	tokenString, err := token.SignedString(secretKey)
+
+	if err != nil {
+		return InternalError(c)
+	}
+
+	ck := http.Cookie{
+		Name:    cookieTokenName,
+		Value:   tokenString,
+		Path:    "/",
+		Expires: time.Now().Add(authTokenTime), // expire in 1 month
+	}
+
+	http.SetCookie(c.Response(), &ck)
+
+	return c.Render(http.StatusOK, r.JSON(Response{
+
+		Data: AuthData{
+			Token: tokenString,
+		},
+	}))
 }
 
 // AuthDestroy clears the session and logs a user out
 func AuthDestroy(c buffalo.Context) error {
 	c.Session().Clear()
-	return c.Redirect(http.StatusFound, "/")
+	return Success(c, "logout")
 }
 
 //ReadJwtKey ... helper function to read jwt key from file
@@ -128,6 +201,7 @@ func ReadJwtKey() ([]byte, error) {
 	if err != nil {
 		log.Fatal("JWT_SECRET file not found")
 	}
+
 	signingKey, err := ioutil.ReadFile(fileName)
 
 	if err != nil {
@@ -137,7 +211,7 @@ func ReadJwtKey() ([]byte, error) {
 	return signingKey, nil
 }
 
-//Auth ... Helper function to retrive auth user
+//Auth ... Helper function to retrive authenticated user
 func Auth(c buffalo.Context) *models.User {
 
 	//Return user when is in request context

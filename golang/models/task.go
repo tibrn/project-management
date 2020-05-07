@@ -18,7 +18,7 @@ type Task struct {
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 	//Relationships
-	Subtasks Tasks `has_many:"tasks" order_by:"created_at desc"`
+	Subtasks Tasks `json:"subtasks,omitmepty" has_many:"tasks" order_by:"created_at desc"`
 }
 
 // String is not required by pop and may be deleted

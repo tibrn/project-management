@@ -3,7 +3,7 @@ import { ModuleStatic } from 'src/types/boot/static'
 
 const requireContext = (require as any).context('src/boot/utils/parts', false, /.*\.ts$/)
 
-const utils = requireContext.keys()
+export const utils = requireContext.keys()
   .map((file: string) => [file.replace(/(^.\/)|(\.ts$)/g, ''), requireContext(file)])
   .reduce((modules: Array<ModuleStatic>, [name, module]: [string, ModuleStatic]) => {
     if (typeof module.default === 'undefined' || name === 'index') {

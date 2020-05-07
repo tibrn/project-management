@@ -35,11 +35,19 @@ func (v TasksResource) List(c buffalo.Context) error {
 		return InternalError(c)
 	}
 
+	// To find the User the parameter project_id is used.
+	if c.Param("project_id") == "" {
+
+		return Error(c, http.StatusForbidden, "")
+	}
+
 	tasks := &models.Tasks{}
 
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params())
+
+	q = q.Eager("Subtasks").Where("project_id = ? ", c.Param("project_id"))
 
 	// Retrieve all Tasks from the DB
 	if err := q.All(tasks); err != nil {

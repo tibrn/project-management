@@ -31,13 +31,13 @@ type User struct {
 	PasswordPlain        string     `json:"password,omitempty"  form:"password" db:"-"`
 	PasswordConfirmation string     `json:"password_confirmation,omitempty" form:"password_confirmation"  db:"-" `
 	//Relationships
-	Settings  UserSetting `has_one:"user_settings"`
-	Tasks     Tasks       `many_to_many:"users_tasks"`
-	Projects  Projects    `many_to_many:"users_projects"`
-	Languages Languages   `many_to_many:"users_languages"`
-	Comments  Comments    `has_many:"comments" order_by:"created_at desc"`
-	Accounts  Platforms   `many_to_many:"users_platforms"`
-	Actions   UserActions `json:"user_actions,omitmepty" has_many:"user_actions"`
+	Settings  *UserSetting `json:"settings,omitmepty" has_one:"user_settings"`
+	Tasks     Tasks        `json:"tasks,omitmepty" many_to_many:"users_tasks"`
+	Projects  Projects     `json:"projects,omitmepty" many_to_many:"users_projects"`
+	Languages Languages    `json:"languages,omitmepty" many_to_many:"users_languages"`
+	Comments  Comments     `json:"comments,omitmepty" has_many:"comments" order_by:"created_at desc"`
+	Accounts  Platforms    `json:"accounts,omitmepty" many_to_many:"users_platforms"`
+	Actions   UserActions  `json:"user_actions,omitmepty" has_many:"user_actions"`
 }
 
 // String is not required by pop and may be deleted
