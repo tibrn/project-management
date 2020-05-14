@@ -5,9 +5,7 @@ go 1.13
 require (
 	github.com/cockroachdb/cockroach-go v0.0.0-20200411195601-6f5842749cfc // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/go-redis/cache/v7 v7.0.2
-	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-redis/redis/v7 v7.0.0-beta.4
 	github.com/gobuffalo/buffalo v0.16.8
 	github.com/gobuffalo/buffalo-pop v1.23.1
@@ -35,9 +33,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/rs/cors v1.7.0
-	github.com/stretchr/testify v1.5.1
 	github.com/unrolled/secure v0.0.0-20190103195806-76e6d4e9b90c
 	github.com/vmihailenco/msgpack/v4 v4.2.0
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc
-	gopkg.in/boj/redistore.v1 v1.0.0-20160128113310-fc113767cd6b
 )
