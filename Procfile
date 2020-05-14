@@ -1,1 +1,1 @@
-web: bin/golang
+web: bin/heroku
